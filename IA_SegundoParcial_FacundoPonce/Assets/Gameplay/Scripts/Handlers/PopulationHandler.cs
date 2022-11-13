@@ -10,6 +10,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         #region EXPOSED_FIELDS
         [SerializeField] private MapHandler map = default;
         [SerializeField] private FoodHandler food = default;
+        [SerializeField] private GameObject prefabAgent = null;
         [SerializeField] private int initialPopulation = 50;
         #endregion
 
