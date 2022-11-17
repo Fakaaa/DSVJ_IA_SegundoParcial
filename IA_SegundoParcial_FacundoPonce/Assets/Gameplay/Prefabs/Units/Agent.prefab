@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6250085816456487160}
   - component: {fileID: 6250085816456487159}
+  - component: {fileID: 4561771049578346547}
+  - component: {fileID: 2693462666900622176}
   m_Layer: 0
   m_Name: Agent
   m_TagString: Untagged
@@ -84,3 +86,27 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &4561771049578346547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6250085816456487158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72bce259fa1b9e34d9ac3c8418f4500d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2693462666900622176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6250085816456487158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b17bb1843eeb13f47ad0007d98180d16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

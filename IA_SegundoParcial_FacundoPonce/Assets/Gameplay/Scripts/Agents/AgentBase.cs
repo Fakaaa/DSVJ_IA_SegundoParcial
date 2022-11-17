@@ -56,7 +56,7 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
         {
             if (state == State.Alive)
             {
-
+                Debug.Log("Falopa");
             }
         }
         #endregion
