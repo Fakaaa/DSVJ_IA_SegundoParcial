@@ -47,7 +47,7 @@ namespace InteligenciaArtificial.SegundoParcial.Utils.CameraHandler
             {
                 UpdateInput();
             }
-            else if(Input.GetMouseButton(0))
+            else if(Input.GetMouseButton(1))
             {
                 Focused = true;
             }
