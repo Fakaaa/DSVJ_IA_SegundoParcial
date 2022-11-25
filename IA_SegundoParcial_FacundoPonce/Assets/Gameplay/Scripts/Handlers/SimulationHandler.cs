@@ -1,55 +1,144 @@
+using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
 
+using InteligenciaArtificial.SegundoParcial.View;
 using InteligenciaArtificial.SegundoParcial.Handlers.Map;
 using InteligenciaArtificial.SegundoParcial.Handlers.Map.Food;
-using InteligenciaArtificial.SegundoParcial.View;
+
+using InteligenciaArtificial.SegundoParcial.Utils.CameraHandler;
 
 namespace InteligenciaArtificial.SegundoParcial.Handlers
 {
+    [System.Serializable]
+    public class AgentsTeam
+    {
+        public PopulationManager PopulationManager;
+        public StartConfigurationScreen StartConfiguration;
+    }
+
     public class SimulationHandler : MonoBehaviour
     {
         #region EXPOSED_FIELDS
-        [SerializeField] private PopulationManager populationManager = default;
-        [SerializeField] private MapHandler map = default;
-        [SerializeField] private FoodHandler food = default;
-        [SerializeField] private StartConfigurationScreen configurationScreen = null;
-        [SerializeField] private Button pauseBtn;
-        [SerializeField] private Button stopBtn;
+        [SerializeField] private List<AgentsTeam> teams = null;
+        [SerializeField] private MapHandler map = null;
+        [SerializeField] private FoodHandler food = null;
+        [SerializeField] private CameraHandler cameraHandler = null;
+        [SerializeField] private Button pauseBtn = null;
+        [SerializeField] private Button stopBtn = null;
+        #endregion
+
+        #region PRIVATE_FIELDS
+        private bool simulationStarted = false;
+        private int teamsNeededForBegin = 0;
         #endregion
 
         #region UNITY_CALLS
         private void Start()
         {
+            teamsNeededForBegin = teams.Count;
+
             Init();
+        }
+
+        private void Update()
+        {
+            if(simulationStarted) return;
+
+            int teamsReady = 0;
+
+            for (int i = 0; i < teams.Count; i++)
+            {
+                if (teams[i] != null && teams[i].StartConfiguration.IsTeamReady)
+                {
+                    teamsReady++;
+                }
+            }
+
+            if(teamsReady == teamsNeededForBegin)
+            {
+                simulationStarted = true;
+                OnStartedSimulation();
+            }
         }
         #endregion
 
         #region PUBLIC_METHODS
         public void Init()
         {
+            simulationStarted = false;
+
             map.Init();
-
-            food.Init(map.GetRandomUniquePositions(populationManager.PopulationCount));
-
-            populationManager.StartSimulation();
 
             pauseBtn.onClick.AddListener(OnPauseButtonClick);
             stopBtn.onClick.AddListener(OnStopButtonClick);
+
+            pauseBtn.gameObject.SetActive(false);
+            stopBtn.gameObject.SetActive(false);
+
+            for (int i = 0; i < teams.Count; i++)
+            {
+                if (teams[i] != null)
+                {
+                    teams[i].StartConfiguration.Init(teams[i].PopulationManager, null);
+                }
+            }
         }
         #endregion
 
         #region PRIVATE_METHODS
+        private void OnStartedSimulation()
+        {
+            pauseBtn.gameObject.SetActive(true); 
+            stopBtn.gameObject.SetActive(true);
+
+            int finalAmountFoodRequeired = 0;
+
+            for (int i = 0; i < teams.Count; i++)
+            {
+                if (teams[i] != null)
+                {
+                    finalAmountFoodRequeired += teams[i].PopulationManager.PopulationCount;
+
+                    teams[i].StartConfiguration.gameObject.SetActive(false);
+                    teams[i].PopulationManager.StartSimulation();
+                }
+            }
+
+            food.Init(map.GetRandomUniquePositions(finalAmountFoodRequeired));
+        }
+
         private void OnPauseButtonClick()
         {
-            PopulationManager.Instance.PauseSimulation();
+            for (int i = 0; i < teams.Count; i++)
+            {
+                if (teams[i] != null)
+                {
+                    teams[i].PopulationManager.PauseSimulation();
+                }
+            }
         }
 
         private void OnStopButtonClick()
         {
-            PopulationManager.Instance.StopSimulation();
-            this.gameObject.SetActive(false);
-            configurationScreen.gameObject.SetActive(true);
+            for (int i = 0; i < teams.Count; i++)
+            {
+                if (teams[i] != null)
+                {
+                    teams[i].StartConfiguration.gameObject.SetActive(true);
+                    teams[i].StartConfiguration.OnStopSimulation();
+                    teams[i].PopulationManager.StopSimulation();
+                }
+            }
+
+            simulationStarted = false;
+
+            pauseBtn.gameObject.SetActive(false);
+            stopBtn.gameObject.SetActive(false);
+
+            cameraHandler.ResetCamera();
+            food.DeInit();
         }
         #endregion
     }

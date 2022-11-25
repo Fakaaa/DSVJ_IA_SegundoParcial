@@ -1,4 +1,5 @@
 using InteligenciaArtificial.SegundoParcial.Utils;
+using InteligenciaArtificial.SegundoParcial.Utils.CameraHandler;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -84,7 +85,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
         {
             List<Vector2Int> result = new List<Vector2Int>();
 
-            if (initialPopulationSize <= maxGridX)
+            if (initialPopulationSize <= (maxGridX * 2)) //Por dos ya que al ser dos equipos cada uno puede ocupar 100 celdas de arriba para abajo.
             {
                 for (int i = 0; i < initialPopulationSize; i++)
                 {
@@ -160,6 +161,11 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
 
             mainCamera.transform.position = new Vector3(finalCameraPosition.x, finalCameraPosition.y, mainCamera.transform.position.z);
             mainCamera.orthographicSize = maxGridX;
+
+            if(mainCamera.TryGetComponent(out CameraHandler cameraHandler))
+            {
+                cameraHandler.Initialize();
+            }
         }
         #endregion
     }

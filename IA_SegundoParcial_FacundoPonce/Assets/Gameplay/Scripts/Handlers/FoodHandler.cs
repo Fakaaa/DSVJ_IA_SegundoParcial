@@ -35,6 +35,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map.Food
 
         #region PRIVATE_FIELDS
         private List<Food> foodInMap = null;
+        private List<GameObject> foodObjects = null;
         private int foodAmount = 0;
         #endregion
 
@@ -49,6 +50,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map.Food
             foodAmount = foodPositions.Count;
 
             foodInMap = new List<Food>();
+            foodObjects = new List<GameObject>();
 
             for (int i = 0; i < foodPositions.Count; i++)
             {
@@ -58,9 +60,22 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map.Food
 
                     foodInMap.Add(food);
 
-                    Instantiate(prefabFood, new Vector3(food.Position.x, food.Position.y, 2), Quaternion.identity, holder);
+                    foodObjects.Add(Instantiate(prefabFood, new Vector3(food.Position.x, food.Position.y, 2), Quaternion.identity, holder));
                 }
             }
+        }
+
+        public void DeInit()
+        {
+            for (int i = 0; i < foodObjects.Count; i++)
+            {
+                if (foodObjects[i] != null)
+                {
+                    Destroy(foodObjects[i]);
+                }
+            }
+
+            foodInMap.Clear();
         }
         #endregion
     }

@@ -1,4 +1,7 @@
+using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 
 namespace InteligenciaArtificial.SegundoParcial.Utils.CameraHandler
 {
@@ -14,6 +17,9 @@ namespace InteligenciaArtificial.SegundoParcial.Utils.CameraHandler
         #region PRIVATE_FIELDS
         private Vector2 velocity = default;
         private Camera mainCamera = null;
+
+        private Vector3 initialCameraPosition = default;
+        private float initialCameraZoom = 0;
         #endregion
 
         #region PROPERTIES
@@ -53,6 +59,19 @@ namespace InteligenciaArtificial.SegundoParcial.Utils.CameraHandler
             }
 
             ApplyMovement();
+        }
+        #endregion
+
+        #region PUBLIC_METHODS
+        public void Initialize()
+        {
+            initialCameraPosition = mainCamera.transform.position;
+            initialCameraZoom = mainCamera.orthographicSize;
+        }
+
+        public void ResetCamera()
+        {
+            StartCoroutine(RestoreCamera(1f));
         }
         #endregion
 
@@ -119,5 +138,21 @@ namespace InteligenciaArtificial.SegundoParcial.Utils.CameraHandler
         }
         #endregion
 
+        #region COROUTINES
+        private IEnumerator RestoreCamera(float restoreDuration)
+        {
+            float time = 0;
+
+            while (time < restoreDuration)
+            {
+                time += Time.deltaTime;
+
+                mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, initialCameraPosition, time);
+                mainCamera.orthographicSize = Mathf.Lerp(mainCamera.orthographicSize, initialCameraZoom, time);
+
+                yield return new WaitForEndOfFrame();
+            }
+        }
+        #endregion
     }
 }

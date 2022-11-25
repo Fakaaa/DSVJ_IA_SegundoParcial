@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using UnityEngine;
 
@@ -11,6 +8,8 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 {
     public class PopulationManager : MonoBehaviour
     {
+        [Header("TEAM SETTINGS")]
+        [SerializeField] private string teamId = null;
         public GameObject AgentPrefab;
         public int PopulationCount = 40;
         public int IterationCount = 1;
@@ -36,7 +35,6 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         private Genome bestGenome = null;
 
         List<AgentBase> firstTeamAIs = new List<AgentBase>();
-        List<AgentBase> secondTeamAIs = new List<AgentBase>();
 
         List<Genome> population = new List<Genome>();
         List<NeuralNetwork> brains = new List<NeuralNetwork>();
@@ -123,51 +121,43 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             return bird;
         }
 
-        static PopulationManager instance = null;
-
-        public static PopulationManager Instance
-        {
-            get
-            {
-                if (instance == null)
-                    instance = FindObjectOfType<PopulationManager>();
-
-                return instance;
-            }
-        }
-
         void Awake()
         {
-            instance = this;
             Load();
         }
 
         public void Load()
         {
-            PopulationCount = PlayerPrefs.GetInt("PopulationCount", 2);
-            EliteCount = PlayerPrefs.GetInt("EliteCount", 0);
-            MutationChance = PlayerPrefs.GetFloat("MutationChance", 0);
-            MutationRate = PlayerPrefs.GetFloat("MutationRate", 0);
-            InputsCount = PlayerPrefs.GetInt("InputsCount", 1);
-            HiddenLayers = PlayerPrefs.GetInt("HiddenLayers", 5);
-            OutputsCount = PlayerPrefs.GetInt("OutputsCount", 1);
-            NeuronsCountPerHL = PlayerPrefs.GetInt("NeuronsCountPerHL", 1);
-            Bias = PlayerPrefs.GetFloat("Bias", 0);
-            Sigmoid = PlayerPrefs.GetFloat("P", 1);
+            if (teamId == null)
+                return;
+
+            PopulationCount = PlayerPrefs.GetInt("PopulationCount_"+ teamId, 100);
+            EliteCount = PlayerPrefs.GetInt("EliteCount_" + teamId, 4);
+            MutationChance = PlayerPrefs.GetFloat("MutationChance_" + teamId, 5);
+            MutationRate = PlayerPrefs.GetFloat("MutationRate_" + teamId, 3);
+            InputsCount = PlayerPrefs.GetInt("InputsCount_" + teamId, 25);
+            HiddenLayers = PlayerPrefs.GetInt("HiddenLayers_" + teamId, 2);
+            OutputsCount = PlayerPrefs.GetInt("OutputsCount_" + teamId, 4);
+            NeuronsCountPerHL = PlayerPrefs.GetInt("NeuronsCountPerHL_" + teamId, 14);
+            Bias = PlayerPrefs.GetFloat("Bias_" + teamId, -2);
+            Sigmoid = PlayerPrefs.GetFloat("P_" + teamId, 0.27f);
         }
 
         void Save()
         {
-            PlayerPrefs.SetInt("PopulationCount", PopulationCount);
-            PlayerPrefs.SetInt("EliteCount", EliteCount);
-            PlayerPrefs.SetFloat("MutationChance", MutationChance);
-            PlayerPrefs.SetFloat("MutationRate", MutationRate);
-            PlayerPrefs.SetInt("InputsCount", InputsCount);
-            PlayerPrefs.SetInt("HiddenLayers", HiddenLayers);
-            PlayerPrefs.SetInt("OutputsCount", OutputsCount);
-            PlayerPrefs.SetInt("NeuronsCountPerHL", NeuronsCountPerHL);
-            PlayerPrefs.SetFloat("Bias", Bias);
-            PlayerPrefs.SetFloat("P", Sigmoid);
+            if (teamId == null)
+                return;
+
+            PlayerPrefs.SetInt("PopulationCount_" + teamId, PopulationCount);
+            PlayerPrefs.SetInt("EliteCount_" + teamId, EliteCount);
+            PlayerPrefs.SetFloat("MutationChance_" + teamId, MutationChance);
+            PlayerPrefs.SetFloat("MutationRate_" + teamId, MutationRate);
+            PlayerPrefs.SetInt("InputsCount_" + teamId, InputsCount);
+            PlayerPrefs.SetInt("HiddenLayers_" + teamId, HiddenLayers);
+            PlayerPrefs.SetInt("OutputsCount_" + teamId, OutputsCount);
+            PlayerPrefs.SetInt("NeuronsCountPerHL_" + teamId, NeuronsCountPerHL);
+            PlayerPrefs.SetFloat("Bias_" + teamId, Bias);
+            PlayerPrefs.SetFloat("P_" + teamId, Sigmoid);
         }
 
         public void StartSimulation(bool bestAI = false)
@@ -184,6 +174,8 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         public void PauseSimulation()
         {
             isRunning = !isRunning;
+
+            Debug.Log(!isRunning? "Paused simulation" : "Simulation resumed");
         }
 
         public void StopSimulation()
@@ -271,6 +263,8 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         {
             if (!isRunning)
                 return;
+
+            Debug.Log("Simulation Team "+ teamId + " Running");
 
             float dt = Time.fixedDeltaTime;
 

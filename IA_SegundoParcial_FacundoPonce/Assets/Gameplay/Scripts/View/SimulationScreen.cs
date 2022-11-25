@@ -25,26 +25,11 @@ namespace InteligenciaArtificial.SegundoParcial.View
         private string worstFitnessText;
         private string timerText;
         private int lastGeneration = 0;
+
+        private PopulationManager populationManager= null;
         #endregion
 
         #region UNITY_CALLS
-        void Start()
-        {
-            timerSlider.onValueChanged.AddListener(OnTimerChange);
-            timerText = timerTxt.text;
-
-            timerTxt.text = string.Format(timerText, PopulationManager.Instance.IterationCount);
-
-            if (string.IsNullOrEmpty(generationsCountText))
-                generationsCountText = generationsCountTxt.text;
-            if (string.IsNullOrEmpty(bestFitnessText))
-                bestFitnessText = bestFitnessTxt.text;
-            if (string.IsNullOrEmpty(avgFitnessText))
-                avgFitnessText = avgFitnessTxt.text;
-            if (string.IsNullOrEmpty(worstFitnessText))
-                worstFitnessText = worstFitnessTxt.text;            
-        }
-
         void OnEnable()
         {
             if (string.IsNullOrEmpty(generationsCountText))
@@ -64,22 +49,43 @@ namespace InteligenciaArtificial.SegundoParcial.View
 
         void LateUpdate()
         {
-            if (lastGeneration != PopulationManager.Instance.generation)
+            if (lastGeneration != populationManager.generation)
             {
-                lastGeneration = PopulationManager.Instance.generation;
-                generationsCountTxt.text = string.Format(generationsCountText, PopulationManager.Instance.generation);
-                bestFitnessTxt.text = string.Format(bestFitnessText, PopulationManager.Instance.bestFitness);
-                avgFitnessTxt.text = string.Format(avgFitnessText, PopulationManager.Instance.avgFitness);
-                worstFitnessTxt.text = string.Format(worstFitnessText, PopulationManager.Instance.worstFitness);
+                lastGeneration = populationManager.generation;
+                generationsCountTxt.text = string.Format(generationsCountText, populationManager.generation);
+                bestFitnessTxt.text = string.Format(bestFitnessText, populationManager.bestFitness);
+                avgFitnessTxt.text = string.Format(avgFitnessText, populationManager.avgFitness);
+                worstFitnessTxt.text = string.Format(worstFitnessText, populationManager.worstFitness);
             }
+        }
+        #endregion
+
+        #region PUBLIC_METHODS
+        public void Init(PopulationManager populationManager)
+        {
+            this.populationManager = populationManager;
+
+            timerSlider.onValueChanged.AddListener(OnTimerChange);
+            timerText = timerTxt.text;
+
+            timerTxt.text = string.Format(timerText, populationManager.IterationCount);
+
+            if (string.IsNullOrEmpty(generationsCountText))
+                generationsCountText = generationsCountTxt.text;
+            if (string.IsNullOrEmpty(bestFitnessText))
+                bestFitnessText = bestFitnessTxt.text;
+            if (string.IsNullOrEmpty(avgFitnessText))
+                avgFitnessText = avgFitnessTxt.text;
+            if (string.IsNullOrEmpty(worstFitnessText))
+                worstFitnessText = worstFitnessTxt.text;
         }
         #endregion
 
         #region PRIVATE_METHODS
         private void OnTimerChange(float value)
         {
-            PopulationManager.Instance.IterationCount = (int)value;
-            timerTxt.text = string.Format(timerText, PopulationManager.Instance.IterationCount);
+            populationManager.IterationCount = (int)value;
+            timerTxt.text = string.Format(timerText, populationManager.IterationCount);
         }        
         #endregion
     }
