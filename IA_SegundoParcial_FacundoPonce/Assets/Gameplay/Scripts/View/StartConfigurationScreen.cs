@@ -62,7 +62,7 @@ namespace InteligenciaArtificial.SegundoParcial.View
         #endregion
 
         #region PUBLIC_METHODS
-        public void Init(PopulationManager populationManager, Action onPressLoadSavedAgent)
+        public void Init(int maxGridX,PopulationManager populationManager, Action onPressLoadSavedAgent)
         {
             this.populationManager = populationManager;
 
@@ -87,6 +87,9 @@ namespace InteligenciaArtificial.SegundoParcial.View
             sigmoidSlopeText = sigmoidSlopeTxt.text;
             inputsText = inputsTxt.text;
             outputsText = outputsTxt.text;
+
+            populationCountSlider.minValue = 0;
+            populationCountSlider.maxValue = maxGridX;
 
             populationCountSlider.value = populationManager.PopulationCount;
             eliteCountSlider.value = populationManager.EliteCount;

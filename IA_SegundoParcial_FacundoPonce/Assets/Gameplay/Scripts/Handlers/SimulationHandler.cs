@@ -81,7 +81,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             {
                 if (teams[i] != null)
                 {
-                    teams[i].StartConfiguration.Init(teams[i].PopulationManager, null);
+                    teams[i].StartConfiguration.Init(map.MaxGridX ,teams[i].PopulationManager, null);
                 }
             }
         }
@@ -102,7 +102,35 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                     finalAmountFoodRequeired += teams[i].PopulationManager.PopulationCount;
 
                     teams[i].StartConfiguration.gameObject.SetActive(false);
-                    teams[i].PopulationManager.StartSimulation();
+
+                    List<Vector2Int> finalTeamPositions = new List<Vector2Int>();
+                    
+                    if(teams[i].PopulationManager.teamId == "Red")
+                    {
+                        List<Cell> leftToRightCells = map.GetLeftToRightBottomCells();
+                        for (int j = 0; j < leftToRightCells.Count; j++)
+                        {
+                            if (leftToRightCells[j] != null)
+                            {
+                                finalTeamPositions.Add(leftToRightCells[j].Position);
+                            }
+                        }
+
+                        teams[i].PopulationManager.StartSimulation(finalTeamPositions);
+                    }
+                    else
+                    {
+                        List<Cell> rightToLeftCells = map.GetRightToLeftTopCells();
+                        for (int j = 0; j < rightToLeftCells.Count; j++)
+                        {
+                            if (rightToLeftCells[j] != null)
+                            {
+                                finalTeamPositions.Add(rightToLeftCells[j].Position);
+                            }
+                        }
+
+                        teams[i].PopulationManager.StartSimulation(finalTeamPositions);
+                    }
                 }
             }
 

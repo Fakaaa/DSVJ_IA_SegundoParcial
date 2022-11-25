@@ -9,7 +9,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
     public class PopulationManager : MonoBehaviour
     {
         [Header("TEAM SETTINGS")]
-        [SerializeField] private string teamId = null;
+        public string teamId = null;
         public GameObject AgentPrefab;
         public int PopulationCount = 40;
         public int IterationCount = 1;
@@ -34,7 +34,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         private const string idDataBestBird = "bestBrainInGenerations";
         private Genome bestGenome = null;
 
-        List<AgentBase> firstTeamAIs = new List<AgentBase>();
+        List<AgentBase> teamAIs = new List<AgentBase>();
 
         List<Genome> population = new List<Genome>();
         List<NeuralNetwork> brains = new List<NeuralNetwork>();
@@ -101,20 +101,20 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 
         public AgentBase GetBestAgent()
         {
-            if (firstTeamAIs.Count == 0)
+            if (teamAIs.Count == 0)
             {
                 Debug.Log("Population count is zero");
                 return null;
             }
 
-            AgentBase bird = firstTeamAIs[0];
+            AgentBase bird = teamAIs[0];
             Genome bestGenome = population[0];
             for (int i = 0; i < population.Count; i++)
             {
-                if (firstTeamAIs[i].state == State.Alive && population[i].fitness > bestGenome.fitness)
+                if (teamAIs[i].state == State.Alive && population[i].fitness > bestGenome.fitness)
                 {
                     bestGenome = population[i];
-                    bird = firstTeamAIs[i];
+                    bird = teamAIs[i];
                 }
             }
 
@@ -160,13 +160,13 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             PlayerPrefs.SetFloat("P_" + teamId, Sigmoid);
         }
 
-        public void StartSimulation(bool bestAI = false)
+        public void StartSimulation(List<Vector2Int> initialPositions, bool bestAI = false)
         {
             Save();
             // Create and confiugre the Genetic Algorithm
             genAlg = new GeneticAlgorithm(EliteCount, MutationChance, MutationRate);
 
-            GenerateInitialPopulation();
+            GenerateInitialPopulation(initialPositions);
 
             isRunning = true;
         }
@@ -190,7 +190,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         }
 
         // Generate the random initial population
-        void GenerateInitialPopulation()
+        void GenerateInitialPopulation(List<Vector2Int> positions)
         {
             generation = 0;
             DestroyBadAgents();
@@ -205,7 +205,9 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 brains.Add(brain);
 
                 population.Add(genome);
-                firstTeamAIs.Add(CreateAgent(genome, brain));
+
+                AgentBase generatedAgent = CreateAgent(positions[i], genome, brain);
+                teamAIs.Add(generatedAgent);
             }
         }
 
@@ -253,7 +255,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             {
                 NeuralNetwork brain = brains[i];
                 brain.SetWeights(newGenomes[i].genome);
-                firstTeamAIs[i].SetBrain(newGenomes[i], brain);
+                teamAIs[i].SetBrain(newGenomes[i], brain);
             }
 
         }
@@ -272,7 +274,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             {
                 bool areAllDead = true;
 
-                foreach (AgentBase b in firstTeamAIs)
+                foreach (AgentBase b in teamAIs)
                 {
                     // Think!! 
                     b.Think(dt);
@@ -290,10 +292,10 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         }
 
         #region Helpers
-        AgentBase CreateAgent(Genome genome, NeuralNetwork brain)
+        AgentBase CreateAgent(Vector2Int position,Genome genome, NeuralNetwork brain)
         {
-            Vector3 position = Vector3.zero;
-            GameObject go = Instantiate<GameObject>(AgentPrefab, position, Quaternion.identity);
+            Vector3 finalPosition = new Vector3(position.x, position.y, 0f);
+            GameObject go = Instantiate<GameObject>(AgentPrefab, finalPosition, Quaternion.identity);
             AgentBase b = go.GetComponent<AgentBase>();
             b.SetBrain(genome, brain);
             return b;
@@ -301,10 +303,10 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 
         void DestroyBadAgents()
         {
-            foreach (AgentBase go in firstTeamAIs)
+            foreach (AgentBase go in teamAIs)
                 Destroy(go.gameObject);
 
-            firstTeamAIs.Clear();
+            teamAIs.Clear();
             population.Clear();
             brains.Clear();
         }

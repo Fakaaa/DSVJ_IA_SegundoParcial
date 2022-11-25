@@ -1,9 +1,9 @@
-using InteligenciaArtificial.SegundoParcial.Utils;
-using InteligenciaArtificial.SegundoParcial.Utils.CameraHandler;
 using System.Collections.Generic;
 
 using UnityEngine;
-using UnityEngine.UIElements;
+
+using InteligenciaArtificial.SegundoParcial.Utils;
+using InteligenciaArtificial.SegundoParcial.Utils.CameraHandler;
 
 namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
 {
@@ -57,6 +57,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
         #endregion
 
         #region PROPERTIES
+        public int MaxGridX { get { return maxGridX; } }
         public Dictionary<Vector2Int, Cell> Map => map;
         #endregion
 
@@ -112,6 +113,49 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
         public Vector2Int GetRanodmPosition()
         {
             return map[new Vector2Int(Random.Range(0, maxGridX), Random.Range(0, maxGridY))].Position;
+        }
+
+        public List<Cell> GetLeftToRightBottomCells()
+        {
+            List<Cell> listOfCells = new List<Cell>();
+
+            foreach (Cell cell in map.Values)
+            {
+                if(cell.Position != SimulationConstants.InvalidPosition)
+                {
+                    if(cell.Position.y < 1)
+                    {
+                        listOfCells.Add(cell);
+                    }
+                }
+            }
+
+            //No nesecito reorganizar la lista ya que viene ordenada por como arme la grid
+            return listOfCells;
+        }
+
+        public List<Cell> GetRightToLeftTopCells()
+        {
+            List<Cell> listOfCells = new List<Cell>();
+
+            foreach (Vector2Int gridPos in map.Keys)
+            {
+                if (gridPos != SimulationConstants.InvalidPosition)
+                { 
+                    if (gridPos.y >= maxGridY-1)
+                    {
+                        listOfCells.Add(map[gridPos]);
+                    }
+                }
+            }
+
+            //Reorganizo la lista para que me quede invertida si es arriba de derecha a izquierda
+            List<Cell> sortedList = new List<Cell>();
+            for (int i = listOfCells.Count-1; i > 0 ; i--)
+            {
+                sortedList.Add(listOfCells[i]);
+            }
+            return sortedList;
         }
         #endregion
 
