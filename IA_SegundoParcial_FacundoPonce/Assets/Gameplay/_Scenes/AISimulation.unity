@@ -5739,7 +5739,7 @@ MonoBehaviour:
   pauseBtn: {fileID: 844984162}
   stopBtn: {fileID: 784035498}
   txtTurnAmount: {fileID: 324197386}
-  maxTurnsAmount: 500
+  maxTurnsAmount: 150
   saveBestAgentOfEachTeam: 0
 --- !u!1 &673004535
 GameObject:

@@ -21,8 +21,8 @@ namespace InteligenciaArtificial.SegundoParcial.Utils.Files
                 Directory.CreateDirectory(dir);
             }
 
-            string[] baseFileName = fitness.Split(".");
-            string fullFileName = baseFileName[0] + "_" + team + "_" + generation + "_[Fitness " + fitness + "]" + baseFileName[1];
+            string[] baseFileName = fileName.Split(".");
+            string fullFileName = baseFileName[0] + "_" + team + "_" + generation + "_[Fitness " + fitness + "]." + baseFileName[1];
             string dataSerialized = JsonUtility.ToJson(savedObject);
 
             File.WriteAllText(dir + fullFileName, dataSerialized);

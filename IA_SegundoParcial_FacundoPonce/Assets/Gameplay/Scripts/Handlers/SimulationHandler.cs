@@ -140,7 +140,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 if(currentTurn == maxTurnsAmount)
                 {
                     txtTurnAmount.text = "Turn: Max Turns, Simulation Paused";
-                    OnPauseButtonClick();
+                    OnEndedAllTurns();
                 }
             }
         }
@@ -193,8 +193,6 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                                 finalTeamPositions.Add(leftToRightCells[j].Position);
                             }
                         }
-
-                        teams[i].PopulationManager.StartSimulation(finalTeamPositions);
                     }
                     else
                     {
@@ -207,12 +205,28 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                             }
                         }
 
-                        teams[i].PopulationManager.StartSimulation(finalTeamPositions);
                     }
+                    
+                    teams[i].PopulationManager.StartSimulation(finalTeamPositions, map, food);
                 }
             }
 
             food.Init(map.GetRandomUniquePositions(finalAmountFoodRequeired));
+            map.SetGeneratedFoodOnCells(food.FoodInMap);
+        }
+
+        private void OnEndedAllTurns()
+        {
+            for (int i = 0; i < teams.Count; i++)
+            {
+                if (teams[i] != null)
+                {
+                    teams[i].PopulationManager.EndedGeneration();
+                }
+            }
+
+            currentTurn = 0;
+            txtTurnAmount.text = "Turn: " + currentTurn.ToString();
         }
 
         private void OnPauseButtonClick()
@@ -264,7 +278,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 {
                     AgentBase bestTeamAgent = teams[i].PopulationManager.GetBestAgent();
 
-                    FileHandler<AgentBase>.Save(bestTeamAgent, teams[i].PopulationManager.teamId, bestTeamAgent.CurrentIteration.ToString(), bestTeamAgent.Genome.fitness.ToString());
+                    FileHandler<AgentData>.Save(bestTeamAgent.AgentData, teams[i].PopulationManager.teamId, bestTeamAgent.CurrentIteration.ToString(), bestTeamAgent.Genome.fitness.ToString());
                 }
             }
         }

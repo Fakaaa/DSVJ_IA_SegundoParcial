@@ -5,6 +5,8 @@ using UnityEngine;
 using InteligenciaArtificial.SegundoParcial.Agents;
 using System.Linq;
 using UnityEngine.Rendering;
+using InteligenciaArtificial.SegundoParcial.Handlers.Map;
+using InteligenciaArtificial.SegundoParcial.Handlers.Map.Food;
 
 namespace InteligenciaArtificial.SegundoParcial.Handlers
 {
@@ -36,6 +38,8 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         private const string idDataBestBird = "bestBrainInGenerations";
         private Genome bestGenome = null;
         private int actualTurn = 0;
+        private MapHandler map = null;
+        private FoodHandler food = null;
 
         List<AgentBase> teamAIs = new List<AgentBase>();
 
@@ -112,7 +116,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 
             AgentBase agent = teamAIs[0];
             Genome bestGenome = population[0];
-            for (int i = 0; i < population.Count; i++)
+            for (int i = 0; i < PopulationCount; i++)
             {
                 if (teamAIs[i].state == State.Alive && population[i].fitness > bestGenome.fitness)
                 {
@@ -176,8 +180,11 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             PlayerPrefs.SetFloat("P_" + teamId, Sigmoid);
         }
 
-        public void StartSimulation(List<Vector2Int> initialPositions, bool bestAI = false)
+        public void StartSimulation(List<Vector2Int> initialPositions, MapHandler map, FoodHandler food)
         {
+            this.map = map;
+            this.food = food;
+
             Save();
             // Create and confiugre the Genetic Algorithm
             genAlg = new GeneticAlgorithm(EliteCount, MutationChance, MutationRate);
@@ -185,6 +192,11 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             GenerateInitialPopulation(initialPositions);
 
             isRunning = true;
+        }
+
+        public void EndedGeneration()
+        {
+            Epoch();
         }
 
         public void PauseSimulation()
@@ -280,7 +292,6 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 brain.SetWeights(newGenomes[i].genome);
                 teamAIs[i].SetBrain(newGenomes[i], brain);
             }
-
         }
 
         // Update is called once per frame
@@ -295,22 +306,22 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 
             for (int i = 0; i < Mathf.Clamp((float)IterationCount, 1, 100); i++)
             {
-                bool areAllDead = true;
+                //bool areAllDead = true;
 
                 foreach (AgentBase b in teamAIs)
                 {
                     // Think!! 
-                    b.Think(dt, actualTurn, IterationCount);
-                    if (b.state == State.Alive)
-                        areAllDead = false;
+                    b.Think(dt, actualTurn, IterationCount, map, food);
+                    //if (b.state == State.Alive)
+                    //    areAllDead = false;
                 }
 
                 // Check the time to evolve
-                if (areAllDead)
+                /*if (areAllDead)
                 {
                     Epoch();
                     break;
-                }
+                }*/
             }
         }
 

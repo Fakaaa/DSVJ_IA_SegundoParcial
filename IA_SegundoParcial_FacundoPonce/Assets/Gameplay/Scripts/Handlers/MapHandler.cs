@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using InteligenciaArtificial.SegundoParcial.Utils;
+using InteligenciaArtificial.SegundoParcial.Handlers.Map.Food;
 using InteligenciaArtificial.SegundoParcial.Utils.CameraHandler;
 
 namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
@@ -14,12 +15,14 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
         private Vector2Int position;
         private Vector2Int size;
         private List<Vector2Int> adjacents;
+        private Food.Food foodInCell;
         #endregion
 
         #region PORPERTIES
         public Vector2Int Size => size;
         public Vector2Int Position => position;
         public List<Vector2Int> Adjacents => adjacents;
+        public Food.Food FoodInCell => foodInCell;
         #endregion
 
         #region CONSTRUCTOR
@@ -35,6 +38,16 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
         public void SetAdjacentsCells(Vector2Int[] adjacents)
         {
             this.adjacents.AddRange(adjacents);
+        }
+
+        public void SetFoodOnCell(Food.Food food)
+        {
+            foodInCell = food;
+        }
+
+        public bool ValidateFood()
+        {
+            return foodInCell != null;
         }
         #endregion
     }
@@ -58,6 +71,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
 
         #region PROPERTIES
         public int MaxGridX { get { return maxGridX; } }
+        public int MaxGridY { get { return maxGridY; } }
         public Dictionary<Vector2Int, Cell> Map => map;
         #endregion
 
@@ -80,6 +94,20 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
             }
 
             return map[cellPosition];
+        }
+
+        public void SetGeneratedFoodOnCells(List<Food.Food> allFoodInMap)
+        {
+            for (int i = 0; i < allFoodInMap.Count; i++)
+            {
+                if (allFoodInMap[i] != null)
+                {
+                    if(map.ContainsKey(allFoodInMap[i].Position))
+                    {
+                        map[allFoodInMap[i].Position].SetFoodOnCell(allFoodInMap[i]);
+                    }
+                }
+            }
         }
 
         public List<Vector2Int> GetRandomUniquePositions(int initialPopulationSize)
@@ -156,6 +184,35 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
                 sortedList.Add(listOfCells[i]);
             }
             return sortedList;
+        }
+
+        public List<Cell> GetAdjacentsCellsToPosition(Vector2Int cellPosition)
+        {
+            List<Cell> adjacents = new List<Cell>();
+
+            Vector2Int upPosition = new Vector2Int(cellPosition.x + 1, cellPosition.y);
+            Vector2Int downPosition = new Vector2Int(cellPosition.x - 1, cellPosition.y);
+            Vector2Int leftPosition = new Vector2Int(cellPosition.x, cellPosition.y - 1);
+            Vector2Int rightPosition = new Vector2Int(cellPosition.x, cellPosition.y + 1);
+
+            if (map.ContainsKey(upPosition))
+            {
+                adjacents.Add(map[upPosition]);
+            }
+            if (map.ContainsKey(downPosition))
+            {
+                adjacents.Add(map[downPosition]);
+            }
+            if (map.ContainsKey(leftPosition))
+            {
+                adjacents.Add(map[leftPosition]);
+            }
+            if (map.ContainsKey(rightPosition))
+            {
+                adjacents.Add(map[rightPosition]);
+            }
+
+            return adjacents;
         }
         #endregion
 

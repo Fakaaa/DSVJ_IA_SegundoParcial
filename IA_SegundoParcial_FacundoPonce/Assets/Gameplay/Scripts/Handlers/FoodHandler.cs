@@ -77,6 +77,20 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map.Food
 
             foodInMap.Clear();
         }
+
+        public void EatedFood(Food foodEated)
+        {
+            if(foodInMap.Contains(foodEated))
+            {
+                foodInMap.Remove(foodEated);
+            }
+
+            GameObject goToDestroy = foodObjects.Find(food => food.transform.position == new Vector3(foodEated.Position.x, foodEated.Position.y, 2));
+            if(goToDestroy != null)
+            {
+                Destroy(goToDestroy);
+            }
+        }
         #endregion
     }
 }
