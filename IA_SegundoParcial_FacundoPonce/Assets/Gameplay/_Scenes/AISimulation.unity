@@ -1781,7 +1781,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapHandler: {fileID: 630332899}
-  prefabFood: {fileID: 5011700814325566530, guid: 4d3d80f351225d948acecbbd298d4c04, type: 3}
+  prefabFood: {fileID: 6511414469455960090, guid: 4d3d80f351225d948acecbbd298d4c04, type: 3}
   holder: {fileID: 1437793452}
 --- !u!1 &218928246
 GameObject:
@@ -2483,7 +2483,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teamId: Red
-  AgentPrefab: {fileID: 6250085816456487158, guid: f0b8709119a4fa04ab3c4cd8d4a27186, type: 3}
+  AgentPrefab: {fileID: 1565609648641558906, guid: 5f9e401dd6bf64e4abcf97c7556a70ce, type: 3}
   PopulationCount: 40
   IterationCount: 1
   EliteCount: 4
@@ -3786,8 +3786,8 @@ MonoBehaviour:
   m_FillRect: {fileID: 825697658}
   m_HandleRect: {fileID: 353348099}
   m_Direction: 0
-  m_MinValue: 0
-  m_MaxValue: 1
+  m_MinValue: 1
+  m_MaxValue: 100
   m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:
@@ -5740,7 +5740,7 @@ MonoBehaviour:
   stopBtn: {fileID: 784035498}
   txtTurnAmount: {fileID: 324197386}
   maxTurnsAmount: 150
-  saveBestAgentOfEachTeam: 0
+  saveBestAgentOfEachTeam: 1
 --- !u!1 &673004535
 GameObject:
   m_ObjectHideFlags: 0
@@ -8992,8 +8992,8 @@ MonoBehaviour:
   m_FillRect: {fileID: 198834461}
   m_HandleRect: {fileID: 1436550844}
   m_Direction: 0
-  m_MinValue: 0
-  m_MaxValue: 1
+  m_MinValue: 1
+  m_MaxValue: 100
   m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:
@@ -13771,7 +13771,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teamId: Blue
-  AgentPrefab: {fileID: 6250085816456487158, guid: f0b8709119a4fa04ab3c4cd8d4a27186, type: 3}
+  AgentPrefab: {fileID: 1565609648641558906, guid: 3ccfadcac5becbb4a826f868233cf8a9, type: 3}
   PopulationCount: 40
   IterationCount: 1
   EliteCount: 4

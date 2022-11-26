@@ -29,13 +29,13 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map.Food
     {
         #region EXPOSED_FIELDS
         [SerializeField] private MapHandler mapHandler;
-        [SerializeField] private GameObject prefabFood = null;
+        [SerializeField] private FoodObject prefabFood = null;
         [SerializeField] private Transform holder = null;
         #endregion
 
         #region PRIVATE_FIELDS
         private List<Food> foodInMap = null;
-        private List<GameObject> foodObjects = null;
+        private List<FoodObject> foodObjects = null;
         private int foodAmount = 0;
         #endregion
 
@@ -50,7 +50,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map.Food
             foodAmount = foodPositions.Count;
 
             foodInMap = new List<Food>();
-            foodObjects = new List<GameObject>();
+            foodObjects = new List<FoodObject>();
 
             for (int i = 0; i < foodPositions.Count; i++)
             {
@@ -60,7 +60,9 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map.Food
 
                     foodInMap.Add(food);
 
-                    foodObjects.Add(Instantiate(prefabFood, new Vector3(food.Position.x, food.Position.y, 2), Quaternion.identity, holder));
+                    FoodObject foodGo= Instantiate(prefabFood, new Vector3(food.Position.x, food.Position.y, 2), Quaternion.identity, holder);
+                    foodGo.SetFoodData(food);
+                    foodObjects.Add(foodGo);
                 }
             }
         }
@@ -80,15 +82,34 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map.Food
 
         public void EatedFood(Food foodEated)
         {
+            if(foodEated == null)
+            {
+                return;
+            }
+
+            FoodObject goToDestroy = null;
+
+            for (int i = 0; i < foodObjects.Count; i++)
+            {
+                if (foodObjects[i] != null)
+                {
+                    if (foodObjects[i].FoodData.Position == foodEated.Position)
+                    {
+                        goToDestroy = foodObjects[i];
+                        break;
+                    }
+                }
+            }
+
+            if(goToDestroy != null)
+            {
+                Destroy(goToDestroy.gameObject);
+                Debug.Log("EATED FOOD");
+                foodObjects.Remove(goToDestroy);
+            }
             if(foodInMap.Contains(foodEated))
             {
                 foodInMap.Remove(foodEated);
-            }
-
-            GameObject goToDestroy = foodObjects.Find(food => food.transform.position == new Vector3(foodEated.Position.x, foodEated.Position.y, 2));
-            if(goToDestroy != null)
-            {
-                Destroy(goToDestroy);
             }
         }
         #endregion

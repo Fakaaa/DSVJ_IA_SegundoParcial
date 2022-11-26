@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using InteligenciaArtificial.SegundoParcial.Utils;
-using InteligenciaArtificial.SegundoParcial.Handlers.Map.Food;
 using InteligenciaArtificial.SegundoParcial.Utils.CameraHandler;
 
 namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
@@ -71,7 +70,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
 
         #region PROPERTIES
         public int MaxGridX { get { return maxGridX; } }
-        public int MaxGridY { get { return maxGridY; } }
+        public int MaxGridY { get { return map[new Vector2Int(0, maxGridY-1)].Position.y; } }
         public Dictionary<Vector2Int, Cell> Map => map;
         #endregion
 

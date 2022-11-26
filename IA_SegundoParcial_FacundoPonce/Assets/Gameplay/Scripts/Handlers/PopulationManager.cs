@@ -295,7 +295,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         }
 
         // Update is called once per frame
-        void FixedUpdate()
+        public void UpdatePopulation()
         {
             if (!isRunning)
                 return;
@@ -311,7 +311,10 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 foreach (AgentBase b in teamAIs)
                 {
                     // Think!! 
-                    b.Think(dt, actualTurn, IterationCount, map, food);
+                    if(b.state == State.Alive)
+                    {
+                        b.Think(dt, actualTurn, IterationCount, map, food);
+                    }
                     //if (b.state == State.Alive)
                     //    areAllDead = false;
                 }
@@ -332,6 +335,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             GameObject go = Instantiate<GameObject>(AgentPrefab, finalPosition, Quaternion.identity);
             AgentBase b = go.GetComponent<AgentBase>();
             b.SetBrain(genome, brain);
+            b.SetInitialiPosition(finalPosition);
             return b;
         }
 

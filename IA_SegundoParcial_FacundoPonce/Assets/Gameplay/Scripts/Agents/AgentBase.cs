@@ -22,6 +22,7 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
     public class AgentBase : MonoBehaviour
     {
         #region PRIVATE_FIELDS
+        private Vector3 initialAgentPosition = default;
         private Vector3 lastAgentPosition = default;
         private int foodColected = 0;
         #endregion
@@ -58,6 +59,11 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
         #endregion
 
         #region PUBLIC_METHODS
+        public void SetInitialiPosition(Vector3 position)
+        {
+            initialAgentPosition = position;
+        }
+
         public void SetBrain(Genome genome, NeuralNetwork brain)
         {
             this.genome = genome;
@@ -70,6 +76,7 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
             agentData.brain = brain;
 
             lastAgentPosition = behaviour.transform.position;
+            OnReset();
         }
 
         public void Think(float dt, int actualTurn, int iteration, MapHandler map, FoodHandler food)
@@ -105,23 +112,23 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
 
             for (int i = 0; i < outputs.Length; i++)
             {
-                if (outputs[i] > -1.0f && outputs[i] < -0.75f)
+                if (outputs[i] < 1.0f && outputs[i] > 0.75f)
                 {
                     behaviour.MoveOnDirection(MOVE_DIRECTIONS.UP, map.MaxGridX, map.MaxGridY);
                 }
-                else if (outputs[i] > -0.75f && outputs[i] < -0.5f)
+                else if (outputs[i] < 0.75f && outputs[i] > 0.5f)
                 {
                     behaviour.MoveOnDirection(MOVE_DIRECTIONS.DOWN, map.MaxGridX, map.MaxGridY);
                 }
-                else if (outputs[i] > -0.5f && outputs[i] < -0.25f)
+                else if (outputs[i] < 0.5f && outputs[i] > 0.25f)
                 {
                     behaviour.MoveOnDirection(MOVE_DIRECTIONS.RIGHT, map.MaxGridX, map.MaxGridY);
                 }
-                else if(outputs[i] > -0.25f && outputs[i] < 0f)
+                else if(outputs[i] < 0.25f && outputs[i] > 0f)
                 {
                     behaviour.MoveOnDirection(MOVE_DIRECTIONS.LEFT, map.MaxGridX, map.MaxGridY);
                 }
-                else if(outputs[i] > 0)
+                else if(outputs[i] < 0)
                 {
                     behaviour.MoveOnDirection(MOVE_DIRECTIONS.NONE, map.MaxGridX, map.MaxGridY);
                 }
@@ -161,6 +168,8 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
         protected virtual void OnReset()
         {
             genome.fitness = 0.0f;
+
+            behaviour.transform.position = initialAgentPosition;
         }
         #endregion
     }

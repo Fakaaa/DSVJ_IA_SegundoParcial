@@ -41,6 +41,9 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         private bool simulationStarted = false;
         private int teamsNeededForBegin = 0;
         private int currentTurn = 0;
+
+        private float delayPerNextTurn = 0.015f;
+        private float time = 0.0f;
         #endregion
 
         #region UNITY_CALLS
@@ -107,23 +110,45 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             }
         }
 
+        private void UpdateTeams()
+        {
+            for (int i = 0; i < teams.Count; i++)
+            {
+                if (teams[i] != null)
+                {
+                    if (teams[i].PopulationManager != null)
+                    {
+                        teams[i].PopulationManager.UpdatePopulation();
+                    }
+                }
+            }
+        }
+
         private void UpdateTurnWhenNeeded()
         {
             if (currentTurn < maxTurnsAmount)
             {
                 if (CheckIfAllTeamsAgentsThink())
                 {
-                    currentTurn++;
-
-                    txtTurnAmount.text = "Turn: "  + currentTurn.ToString();
-
-                    for (int i = 0; i < teams.Count; i++)
+                    if (time < delayPerNextTurn)
                     {
-                        if (teams[i] != null)
+                        time += Time.deltaTime;
+                    }
+                    else
+                    {
+                        time = 0;
+                        currentTurn++;
+
+                        txtTurnAmount.text = "Turn: " + currentTurn.ToString();
+
+                        for (int i = 0; i < teams.Count; i++)
                         {
-                            if (teams[i].PopulationManager != null)
+                            if (teams[i] != null)
                             {
-                                teams[i].PopulationManager.UpdateTurn(currentTurn);
+                                if (teams[i].PopulationManager != null)
+                                {
+                                    teams[i].PopulationManager.UpdateTurn(currentTurn);
+                                }
                             }
                         }
                     }
@@ -131,13 +156,16 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 else
                 {
                     Debug.Log("There is agents that hasn't think a this moment.");
+
+                    UpdateTeams();
                 }
+
             }
             else
             {
                 currentTurn = maxTurnsAmount;
 
-                if(currentTurn == maxTurnsAmount)
+                if (currentTurn == maxTurnsAmount)
                 {
                     txtTurnAmount.text = "Turn: Max Turns, Simulation Paused";
                     OnEndedAllTurns();
@@ -206,7 +234,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                         }
 
                     }
-                    
+
                     teams[i].PopulationManager.StartSimulation(finalTeamPositions, map, food);
                 }
             }
@@ -242,7 +270,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 
         private void OnStopButtonClick()
         {
-            if(saveBestAgentOfEachTeam)
+            if (saveBestAgentOfEachTeam)
             {
                 SaveBestAgentOfEachTeam();
             }
