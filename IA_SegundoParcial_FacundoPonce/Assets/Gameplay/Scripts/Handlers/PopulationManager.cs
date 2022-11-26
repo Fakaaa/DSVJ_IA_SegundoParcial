@@ -3,6 +3,8 @@
 using UnityEngine;
 
 using InteligenciaArtificial.SegundoParcial.Agents;
+using System.Linq;
+using UnityEngine.Rendering;
 
 namespace InteligenciaArtificial.SegundoParcial.Handlers
 {
@@ -33,6 +35,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 
         private const string idDataBestBird = "bestBrainInGenerations";
         private Genome bestGenome = null;
+        private int actualTurn = 0;
 
         List<AgentBase> teamAIs = new List<AgentBase>();
 
@@ -107,18 +110,31 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 return null;
             }
 
-            AgentBase bird = teamAIs[0];
+            AgentBase agent = teamAIs[0];
             Genome bestGenome = population[0];
             for (int i = 0; i < population.Count; i++)
             {
                 if (teamAIs[i].state == State.Alive && population[i].fitness > bestGenome.fitness)
                 {
                     bestGenome = population[i];
-                    bird = teamAIs[i];
+                    agent = teamAIs[i];
                 }
             }
 
-            return bird;
+            return agent;
+        }
+
+        public List<AgentBase> SearchForAgentsThatCanCross()
+        {
+            List<AgentBase> agents = new List<AgentBase>();
+            return agents;
+        }
+
+        public bool AllAgentsAlreadyThink()
+        {
+            List<AgentBase> agentsThatNotThink = teamAIs.Where(agent => agent.CurrentTurn != actualTurn).ToList();
+
+            return agentsThatNotThink.Count < 1;
         }
 
         void Awake()
@@ -187,6 +203,13 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             generation = 0;
 
             DestroyBadAgents();
+        }
+
+        public void UpdateTurn(int currentTurn)
+        {
+            actualTurn = currentTurn;
+
+            Debug.Log("Updated turn on team " + teamId);
         }
 
         // Generate the random initial population
@@ -277,7 +300,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 foreach (AgentBase b in teamAIs)
                 {
                     // Think!! 
-                    b.Think(dt);
+                    b.Think(dt, actualTurn, IterationCount);
                     if (b.state == State.Alive)
                         areAllDead = false;
                 }

@@ -26,6 +26,9 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
         protected Genome genome;
         protected NeuralNetwork brain;
         protected AgentBehaviour behaviour;
+        protected int currentTurn = 0;
+        protected int foodEaten = 0;
+        protected int currentIteration = 0;
         #endregion
 
         #region PROPERTIES
@@ -35,6 +38,9 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
         }
         public Genome Genome { get { return genome; } }
         public NeuralNetwork Brain { get { return brain; } }
+        public int CurrentTurn { get { return currentTurn; } }
+        public int FoodEaten { get { return foodEaten; } }
+        public int CurrentIteration { get { return currentIteration; } }
         #endregion
 
         #region UNITY_CALLS
@@ -52,10 +58,12 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
             state = State.Alive;
         }
 
-        public void Think(float dt)
+        public void Think(float dt, int actualTurn, int iteration)
         {
             if (state == State.Alive)
             {
+                currentTurn = actualTurn;
+                currentIteration = iteration;
             }
         }
         #endregion

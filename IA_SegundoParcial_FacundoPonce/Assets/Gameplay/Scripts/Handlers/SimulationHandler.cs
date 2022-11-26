@@ -8,6 +8,9 @@ using InteligenciaArtificial.SegundoParcial.Handlers.Map;
 using InteligenciaArtificial.SegundoParcial.Handlers.Map.Food;
 
 using InteligenciaArtificial.SegundoParcial.Utils.CameraHandler;
+using TMPro;
+using InteligenciaArtificial.SegundoParcial.Agents;
+using InteligenciaArtificial.SegundoParcial.Utils.Files;
 
 namespace InteligenciaArtificial.SegundoParcial.Handlers
 {
@@ -27,11 +30,17 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         [SerializeField] private CameraHandler cameraHandler = null;
         [SerializeField] private Button pauseBtn = null;
         [SerializeField] private Button stopBtn = null;
+
+        [Header("SIMULATION SETTINGS")]
+        [SerializeField] private TMP_Text txtTurnAmount = null;
+        [SerializeField] private int maxTurnsAmount = 0;
+        [SerializeField] private bool saveBestAgentOfEachTeam = false;
         #endregion
 
         #region PRIVATE_FIELDS
         private bool simulationStarted = false;
         private int teamsNeededForBegin = 0;
+        private int currentTurn = 0;
         #endregion
 
         #region UNITY_CALLS
@@ -44,22 +53,11 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 
         private void Update()
         {
-            if(simulationStarted) return;
+            InitializeSimulation();
 
-            int teamsReady = 0;
-
-            for (int i = 0; i < teams.Count; i++)
+            if (simulationStarted)
             {
-                if (teams[i] != null && teams[i].StartConfiguration.IsTeamReady)
-                {
-                    teamsReady++;
-                }
-            }
-
-            if(teamsReady == teamsNeededForBegin)
-            {
-                simulationStarted = true;
-                OnStartedSimulation();
+                UpdateTurnWhenNeeded();
             }
         }
         #endregion
@@ -81,16 +79,96 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             {
                 if (teams[i] != null)
                 {
-                    teams[i].StartConfiguration.Init(map.MaxGridX ,teams[i].PopulationManager, null);
+                    teams[i].StartConfiguration.Init(map.MaxGridX, teams[i].PopulationManager, null);
                 }
             }
         }
         #endregion
 
         #region PRIVATE_METHODS
+        private void InitializeSimulation()
+        {
+            if (simulationStarted) return;
+
+            int teamsReady = 0;
+
+            for (int i = 0; i < teams.Count; i++)
+            {
+                if (teams[i] != null && teams[i].StartConfiguration.IsTeamReady)
+                {
+                    teamsReady++;
+                }
+            }
+
+            if (teamsReady == teamsNeededForBegin)
+            {
+                simulationStarted = true;
+                OnStartedSimulation();
+            }
+        }
+
+        private void UpdateTurnWhenNeeded()
+        {
+            if (currentTurn < maxTurnsAmount)
+            {
+                if (CheckIfAllTeamsAgentsThink())
+                {
+                    currentTurn++;
+
+                    txtTurnAmount.text = "Turn: "  + currentTurn.ToString();
+
+                    for (int i = 0; i < teams.Count; i++)
+                    {
+                        if (teams[i] != null)
+                        {
+                            if (teams[i].PopulationManager != null)
+                            {
+                                teams[i].PopulationManager.UpdateTurn(currentTurn);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.Log("There is agents that hasn't think a this moment.");
+                }
+            }
+            else
+            {
+                currentTurn = maxTurnsAmount;
+
+                if(currentTurn == maxTurnsAmount)
+                {
+                    txtTurnAmount.text = "Turn: Max Turns, Simulation Paused";
+                    OnPauseButtonClick();
+                }
+            }
+        }
+
+        private bool CheckIfAllTeamsAgentsThink()
+        {
+            int compleatedTeams = 0;
+
+            for (int i = 0; i < teams.Count; i++)
+            {
+                if (teams[i] != null)
+                {
+                    if (teams[i].PopulationManager != null)
+                    {
+                        if (teams[i].PopulationManager.AllAgentsAlreadyThink())
+                        {
+                            compleatedTeams++;
+                        }
+                    }
+                }
+            }
+
+            return compleatedTeams == teams.Count;
+        }
+
         private void OnStartedSimulation()
         {
-            pauseBtn.gameObject.SetActive(true); 
+            pauseBtn.gameObject.SetActive(true);
             stopBtn.gameObject.SetActive(true);
 
             int finalAmountFoodRequeired = 0;
@@ -104,8 +182,8 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                     teams[i].StartConfiguration.gameObject.SetActive(false);
 
                     List<Vector2Int> finalTeamPositions = new List<Vector2Int>();
-                    
-                    if(teams[i].PopulationManager.teamId == "Red")
+
+                    if (teams[i].PopulationManager.teamId == "Red")
                     {
                         List<Cell> leftToRightCells = map.GetLeftToRightBottomCells();
                         for (int j = 0; j < leftToRightCells.Count; j++)
@@ -150,6 +228,11 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 
         private void OnStopButtonClick()
         {
+            if(saveBestAgentOfEachTeam)
+            {
+                SaveBestAgentOfEachTeam();
+            }
+
             for (int i = 0; i < teams.Count; i++)
             {
                 if (teams[i] != null)
@@ -167,6 +250,23 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 
             cameraHandler.ResetCamera();
             food.DeInit();
+
+            currentTurn = 0;
+
+            txtTurnAmount.text = "Turn: " + currentTurn.ToString();
+        }
+
+        private void SaveBestAgentOfEachTeam()
+        {
+            for (int i = 0; i < teams.Count; i++)
+            {
+                if (teams[i] != null)
+                {
+                    AgentBase bestTeamAgent = teams[i].PopulationManager.GetBestAgent();
+
+                    FileHandler<AgentBase>.Save(bestTeamAgent, teams[i].PopulationManager.teamId, bestTeamAgent.CurrentIteration.ToString(), bestTeamAgent.Genome.fitness.ToString());
+                }
+            }
         }
         #endregion
     }
