@@ -109,6 +109,20 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
             }
         }
 
+        public void ClearFoodOnCells()
+        {
+            foreach (Cell cell in map.Values)
+            {
+                if(cell != null)
+                {
+                    if(cell.FoodInCell != null)
+                    {
+                        cell.SetFoodOnCell(null);
+                    }
+                }
+            }
+        }
+
         public List<Vector2Int> GetRandomUniquePositions(int initialPopulationSize)
         {
             List<Vector2Int> result = new List<Vector2Int>();

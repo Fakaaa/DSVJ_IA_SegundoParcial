@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+using System.Collections.Generic;
 
 using UnityEngine;
 
 using InteligenciaArtificial.SegundoParcial.Agents;
-using System.Linq;
-using UnityEngine.Rendering;
 using InteligenciaArtificial.SegundoParcial.Handlers.Map;
 using InteligenciaArtificial.SegundoParcial.Handlers.Map.Food;
 
@@ -152,7 +151,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 return;
 
             PopulationCount = PlayerPrefs.GetInt("PopulationCount_"+ teamId, 100);
-            EliteCount = PlayerPrefs.GetInt("EliteCount_" + teamId, 4);
+            EliteCount = PlayerPrefs.GetInt("EliteCount_" + teamId, 0);
             MutationChance = PlayerPrefs.GetFloat("MutationChance_" + teamId, 5);
             MutationRate = PlayerPrefs.GetFloat("MutationRate_" + teamId, 3);
             InputsCount = PlayerPrefs.GetInt("InputsCount_" + teamId, 25);
@@ -220,8 +219,6 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         public void UpdateTurn(int currentTurn)
         {
             actualTurn = currentTurn;
-
-            Debug.Log("Updated turn on team " + teamId);
         }
 
         // Generate the random initial population
@@ -276,16 +273,49 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             avgFitness = GetAvgFitness();
             worstFitness = GetWorstFitness();
 
+            List<Genome> genomesThatSurvived = new List<Genome>();
+            for (int i = 0; i < teamAIs.Count; i++)
+            {
+                if (teamAIs[i] != null)
+                {
+                    teamAIs[i].OnGenerationEnded(out Genome genomeSurvived);
+
+                    if(genomeSurvived != null)
+                    {
+                        genomeSurvived.generationsSurvived++;
+
+                        if(genomeSurvived.generationsSurvived < 4)
+                        {
+                            genomesThatSurvived.Add(genomeSurvived);
+                        }
+                    }
+                }
+            }
+
             // Evolve each genome and create a new array of genomes
-            Genome[] newGenomes = genAlg.Epoch(population.ToArray());
+            List<Genome> newGenomes = genAlg.Epoch(genomesThatSurvived.ToArray()).ToList();
+            //Genome[] newGenomes = genAlg.Epoch(population.ToArray());
 
             // Clear current population
             population.Clear();
 
+            List<Genome> newGeneratedGenomes = new List<Genome>();
+            if(newGenomes.Count < PopulationCount)
+            {
+                int difference = PopulationCount - newGenomes.Count;
+
+                for (int i = 0; i < difference; i++)
+                {
+                    Genome genome = new Genome(brains[Random.Range(0, brains.Count-1)].GetTotalWeightsCount());
+                    newGeneratedGenomes.Add(genome);
+                }
+            }
+
+            newGenomes.AddRange(newGeneratedGenomes);
             // Add new population
             population.AddRange(newGenomes);
 
-            // Set the new genomes as each NeuralNetwork weights
+            // Set the new genomes as each NeuralNetwork weights 
             for (int i = 0; i < PopulationCount; i++)
             {
                 NeuralNetwork brain = brains[i];
@@ -300,14 +330,10 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             if (!isRunning)
                 return;
 
-            Debug.Log("Simulation Team "+ teamId + " Running");
-
             float dt = Time.fixedDeltaTime;
 
             for (int i = 0; i < Mathf.Clamp((float)IterationCount, 1, 100); i++)
             {
-                //bool areAllDead = true;
-
                 foreach (AgentBase b in teamAIs)
                 {
                     // Think!! 
@@ -315,16 +341,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                     {
                         b.Think(dt, actualTurn, IterationCount, map, food);
                     }
-                    //if (b.state == State.Alive)
-                    //    areAllDead = false;
                 }
-
-                // Check the time to evolve
-                /*if (areAllDead)
-                {
-                    Epoch();
-                    break;
-                }*/
             }
         }
 
@@ -334,7 +351,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             Vector3 finalPosition = new Vector3(position.x, position.y, 0f);
             GameObject go = Instantiate<GameObject>(AgentPrefab, finalPosition, Quaternion.identity);
             AgentBase b = go.GetComponent<AgentBase>();
-            b.SetBrain(genome, brain);
+            b.SetBrain(genome, brain, false);
             b.SetInitialiPosition(finalPosition);
             return b;
         }

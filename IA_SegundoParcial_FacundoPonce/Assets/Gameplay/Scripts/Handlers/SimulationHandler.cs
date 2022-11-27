@@ -42,8 +42,10 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         private int teamsNeededForBegin = 0;
         private int currentTurn = 0;
 
-        private float delayPerNextTurn = 0.015f;
+        private float delayPerNextTurn = 0f;
         private float time = 0.0f;
+
+        private int totalFoodPerCountOfAIs = 0;
         #endregion
 
         #region UNITY_CALLS
@@ -155,8 +157,6 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 }
                 else
                 {
-                    Debug.Log("There is agents that hasn't think a this moment.");
-
                     UpdateTeams();
                 }
 
@@ -199,13 +199,13 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             pauseBtn.gameObject.SetActive(true);
             stopBtn.gameObject.SetActive(true);
 
-            int finalAmountFoodRequeired = 0;
+            totalFoodPerCountOfAIs = 0;
 
             for (int i = 0; i < teams.Count; i++)
             {
                 if (teams[i] != null)
                 {
-                    finalAmountFoodRequeired += teams[i].PopulationManager.PopulationCount;
+                    totalFoodPerCountOfAIs += teams[i].PopulationManager.PopulationCount;
 
                     teams[i].StartConfiguration.gameObject.SetActive(false);
 
@@ -239,7 +239,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 }
             }
 
-            food.Init(map.GetRandomUniquePositions(finalAmountFoodRequeired));
+            food.Init(map.GetRandomUniquePositions(totalFoodPerCountOfAIs*2));
             map.SetGeneratedFoodOnCells(food.FoodInMap);
         }
 
@@ -253,8 +253,14 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 }
             }
 
+            food.DeInit();
+            map.ClearFoodOnCells();
+
             currentTurn = 0;
             txtTurnAmount.text = "Turn: " + currentTurn.ToString();
+
+            food.Init(map.GetRandomUniquePositions(totalFoodPerCountOfAIs * 2));
+            map.SetGeneratedFoodOnCells(food.FoodInMap);
         }
 
         private void OnPauseButtonClick()
@@ -294,7 +300,6 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             food.DeInit();
 
             currentTurn = 0;
-
             txtTurnAmount.text = "Turn: " + currentTurn.ToString();
         }
 

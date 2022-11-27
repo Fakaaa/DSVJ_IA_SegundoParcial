@@ -1,17 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections.LowLevel.Unsafe;
+using System.Linq;
 
 [System.Serializable]
 public class Genome
 {
     public float[] genome;
     public float fitness = 0;
+    public int foodEated = 0;
+    public int generationsSurvived = 0;
 
     public Genome(float[] genes)
     {
         this.genome = genes;
         fitness = 0;
+        foodEated = 0;
+        generationsSurvived = 0;
     }
 
     public Genome(int genesCount)
@@ -22,6 +28,8 @@ public class Genome
             genome[j] = Random.Range(-1.0f, 1.0f);
 
         fitness = 0;
+        foodEated = 0;
+        generationsSurvived = 0;
     }
 
     public Genome()
@@ -79,9 +87,31 @@ public class GeneticAlgorithm
 
         SelectElite();
 
-        while (newPopulation.Count < population.Count)
+        int genomesThatCanCrossover = 0;
+
+        for (int i = 0; i < population.Count; i++)
         {
-            Crossover();
+            if (population[i] != null)
+            {
+                if (population[i].foodEated >= 2)
+                {
+                    genomesThatCanCrossover++;
+                }
+            }
+        }
+
+        if(genomesThatCanCrossover >= 2)
+        {
+            while (newPopulation.Count < population.Count)
+            {
+                Crossover();
+            }
+        }
+        else
+        {
+            newPopulation.AddRange(population);
+
+            newPopulation = newPopulation.Distinct().ToList();
         }
 
         return newPopulation.ToArray();
@@ -97,8 +127,13 @@ public class GeneticAlgorithm
 
     void Crossover()
     {
-        Genome mom = RouletteSelection();
-        Genome dad = RouletteSelection();
+        Genome mom = SelectCorrectGenomeToCrossover();
+        Genome dad = SelectCorrectGenomeToCrossover();
+
+        if(mom == null || dad == null)
+        {
+            return;
+        }
 
         Genome child1;
         Genome child2;
@@ -156,6 +191,24 @@ public class GeneticAlgorithm
         return x.fitness > y.fitness ? 1 : x.fitness < y.fitness ? -1 : 0;
     }
 
+
+    public Genome SelectCorrectGenomeToCrossover()
+    {
+        Genome genomeAbleToCrossover = null;
+
+        for (int i = 0; i < population.Count; i++)
+        {
+            if (population[i] != null)
+            {
+                if (population[i].foodEated >= 2)
+                {
+                    genomeAbleToCrossover = population[i];
+                    break;
+                }
+            }
+        }
+        return genomeAbleToCrossover;
+    }
 
     public Genome RouletteSelection()
     {
