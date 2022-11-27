@@ -93,7 +93,8 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map.Food
                 {
                     if (agentPosition == new Vector2Int((int)foodObjects[i].transform.position.x, (int)foodObjects[i].transform.position.y))
                     {
-                        Destroy(foodObjects[i].gameObject);
+                        foodObjects[i].transform.localScale *= 3;
+                        Destroy(foodObjects[i].gameObject,1f);
                         foodObjects.Remove(foodObjects[i]);
                         break;
                     }

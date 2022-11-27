@@ -34,8 +34,9 @@ namespace InteligenciaArtificial.SegundoParcial.View
         [SerializeField] private TMP_Text outputsTxt;
         [SerializeField] private Slider outputsSlider;
         [SerializeField] private Button startButton;
-        [SerializeField] private Button startBestAISaved;
         [SerializeField] private SimulationScreen simulationScreen;
+        [Header("LOAD DATA")]
+        [SerializeField] private TMP_InputField fileNameToLoad;
 
         [Header("STATE TEAM")]
         [SerializeField] private Toggle teamSettingState;
@@ -59,10 +60,11 @@ namespace InteligenciaArtificial.SegundoParcial.View
 
         #region PROPERTIES
         public bool IsTeamReady { get { return teamSettingState.isOn; } }
+        public TMP_InputField FileNameToLoad { get { return fileNameToLoad; } }
         #endregion
 
         #region PUBLIC_METHODS
-        public void Init(int maxGridX,PopulationManager populationManager, Action onPressLoadSavedAgent)
+        public void Init(int maxGridX,PopulationManager populationManager)
         {
             this.populationManager = populationManager;
 
@@ -103,17 +105,32 @@ namespace InteligenciaArtificial.SegundoParcial.View
             outputsSlider.value = populationManager.OutputsCount;
 
             startButton.onClick.AddListener(() => { OnStartButtonClick(false); });
-            startBestAISaved.onClick.AddListener(() => { onPressLoadSavedAgent?.Invoke(); });
 
             Refresh();
 
             teamSettingState.isOn = false;
+
+            fileNameToLoad.onEndEdit.AddListener((text) => { ToggleOptions(string.IsNullOrEmpty(text)); });
         }
 
         public void OnStopSimulation()
         {
             simulationScreen.gameObject.SetActive(false);
             teamSettingState.isOn = false;
+        }
+
+        public void ToggleOptions(bool state)
+        {
+            populationCountSlider.interactable = state;
+            eliteCountSlider.interactable = state;
+            mutationChanceSlider.interactable = state;
+            mutationRateSlider.interactable = state;
+            hiddenLayersCountSlider.interactable = state;
+            neuronsPerHLSlider.interactable = state;
+            biasSlider.interactable = state;
+            sigmoidSlopeSlider.interactable = state;
+            inputsSlider.interactable = state;
+            outputsSlider.interactable = state;
         }
         #endregion
 

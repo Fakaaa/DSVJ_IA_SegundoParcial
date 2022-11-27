@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace InteligenciaArtificial.SegundoParcial.Agents
@@ -14,7 +15,7 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
     public class AgentBehaviour : MonoBehaviour
     {
         #region PUBLIC_METHODS
-        public void MoveOnDirection(MOVE_DIRECTIONS moveDirection, int limitX, int limitY)
+        public void MoveOnDirection(MOVE_DIRECTIONS moveDirection, int limitX, int limitY, Action OnReachLimitY = null)
         {
             switch (moveDirection)
             {
@@ -23,6 +24,10 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
                     if(transform.position.y +1 < limitY)
                     {
                         transform.position = new Vector3(transform.position.x, transform.position.y + 1, transform.position.z);
+                    }
+                    else
+                    {
+                        OnReachLimitY?.Invoke();
                     }
 
                     break;
@@ -55,6 +60,10 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
                     if(transform.position.y -1 > 0)
                     {
                         transform.position = new Vector3(transform.position.x, transform.position.y - 1, transform.position.z);
+                    }
+                    else
+                    {
+                        OnReachLimitY?.Invoke();
                     }
 
                     break;

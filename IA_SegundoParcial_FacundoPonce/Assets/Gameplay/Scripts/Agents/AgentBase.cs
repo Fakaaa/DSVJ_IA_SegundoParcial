@@ -143,30 +143,30 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
             {
                 if (outputs[i] < 1.0f && outputs[i] > 0.75f)
                 {
-                    behaviour.MoveOnDirection(MOVE_DIRECTIONS.UP, map.MaxGridX, map.MaxGridY);
+                    behaviour.MoveOnDirection(MOVE_DIRECTIONS.UP, map.MaxGridX, map.MaxGridY, OnReachLimitY: () => { genome.fitness -= 1.0f; });
+                    genome.fitness += 0.75f;
                 }
                 else if (outputs[i] < 0.75f && outputs[i] > 0.5f)
                 {
-                    behaviour.MoveOnDirection(MOVE_DIRECTIONS.DOWN, map.MaxGridX, map.MaxGridY);
+                    behaviour.MoveOnDirection(MOVE_DIRECTIONS.DOWN, map.MaxGridX, map.MaxGridY, OnReachLimitY: () => { genome.fitness -= 1.0f; });
+                    genome.fitness += 0.75f;
                 }
                 else if (outputs[i] < 0.25f && outputs[i] > 0.0f)
                 {
                     behaviour.MoveOnDirection(MOVE_DIRECTIONS.RIGHT, map.MaxGridX, map.MaxGridY);
+                    genome.fitness += 1.25f;
                 }
                 else if (outputs[i] < 0.5f && outputs[i] > 0.25f)
                 {
                     behaviour.MoveOnDirection(MOVE_DIRECTIONS.LEFT, map.MaxGridX, map.MaxGridY);
+                    genome.fitness += 1.25f;
                 }
                 else if (outputs[i] < 0)
                 {
                     behaviour.MoveOnDirection(MOVE_DIRECTIONS.NONE, map.MaxGridX, map.MaxGridY);
+                    genome.fitness += 0.50f;
                 }
             }
-
-            /*if (behaviour.transform.position != lastAgentPosition)
-            {
-                genome.fitness += 0.15f;
-            }*/
 
             if (map != null)
             {
@@ -184,10 +184,10 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
                 }
             }
 
-            /*if (foodColected > 2)
+            if (foodColected > 4) //Because is eating more food, his teamates cannot eat
             {
-                genome.fitness -= 1;
-            }*/
+                genome.fitness -= 1; 
+            }
         }
 
         protected virtual void OnDead()

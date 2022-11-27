@@ -7,14 +7,14 @@ namespace InteligenciaArtificial.SegundoParcial.Utils.Files
     public static class FileHandler<T> where T : class
     {
         #region EXPOSED_FIELDSS
-        public static string directory = "/SavedGenerations/";
-        public static string fileName = "Brain.txt";
+        public static string directory = "/SavedTeamsSimulations/";
+        public static string fileName = "BestAgent.txt";
         #endregion
 
         #region PUBLIC_METHODS
-        public static void Save(T savedObject, string team, string generation, string fitness)
+        public static void Save(T savedObject, string team, string generation, string fitness, string foodAte)
         {
-            string dir = Application.persistentDataPath + directory;
+            string dir = Application.persistentDataPath + directory + team + "/";
 
             if (!Directory.Exists(dir))
             {
@@ -22,7 +22,7 @@ namespace InteligenciaArtificial.SegundoParcial.Utils.Files
             }
 
             string[] baseFileName = fileName.Split(".");
-            string fullFileName = baseFileName[0] + "_" + team + "_" + generation + "_[Fitness " + fitness + "]." + baseFileName[1];
+            string fullFileName = baseFileName[0] + "_" + team + "_[Gen " + generation + "]_[Fitness " + fitness + "]_[Food Ate " + foodAte + "]." + baseFileName[1];
             string dataSerialized = JsonUtility.ToJson(savedObject);
 
             File.WriteAllText(dir + fullFileName, dataSerialized);
@@ -41,9 +41,14 @@ namespace InteligenciaArtificial.SegundoParcial.Utils.Files
             File.WriteAllText(dir + fileName, dataSerialized);
         }
 
-        public static T Load()
+        /// <summary>
+        /// This will load the data if you pass correct the filename of the file saved.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static T Load(string teamFrom,string fileName)
         {
-            string fullPath = Application.persistentDataPath + directory + fileName;
+            string fullPath = Application.persistentDataPath + directory + teamFrom + "/" + fileName;
             T newObj = null;
 
             if(File.Exists(fullPath))

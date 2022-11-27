@@ -179,7 +179,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             PlayerPrefs.SetFloat("P_" + teamId, Sigmoid);
         }
 
-        public void StartSimulation(List<Vector2Int> initialPositions, MapHandler map, FoodHandler food)
+        public void StartSimulation(List<Vector2Int> initialPositions, MapHandler map, FoodHandler food, AgentData loadedAgentData)
         {
             this.map = map;
             this.food = food;
@@ -188,7 +188,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             // Create and confiugre the Genetic Algorithm
             genAlg = new GeneticAlgorithm(EliteCount, MutationChance, MutationRate);
 
-            GenerateInitialPopulation(initialPositions);
+            GenerateInitialPopulation(initialPositions, loadedAgentData);
 
             isRunning = true;
         }
@@ -222,18 +222,28 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         }
 
         // Generate the random initial population
-        void GenerateInitialPopulation(List<Vector2Int> positions)
+        void GenerateInitialPopulation(List<Vector2Int> positions, AgentData loadedAgentData = null)
         {
             generation = 0;
             DestroyBadAgents();
 
             for (int i = 0; i < PopulationCount; i++)
             {
-                NeuralNetwork brain = CreateBrain();
+                NeuralNetwork brain = null;
+                Genome genome = null;
 
-                Genome genome = new Genome(brain.GetTotalWeightsCount());
+                if (loadedAgentData != null)
+                {
+                    brain = loadedAgentData.brain;
+                    genome = loadedAgentData.genome;
+                }
+                else
+                {
+                    brain = CreateBrain();
+                    genome = new Genome(brain.GetTotalWeightsCount());
+                    brain.SetWeights(genome.genome);
+                }
 
-                brain.SetWeights(genome.genome);
                 brains.Add(brain);
 
                 population.Add(genome);
@@ -334,12 +344,12 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 
             for (int i = 0; i < Mathf.Clamp((float)IterationCount, 1, 100); i++)
             {
-                foreach (AgentBase b in teamAIs)
+                foreach (AgentBase agent in teamAIs)
                 {
                     // Think!! 
-                    if(b.state == State.Alive)
+                    if(agent.state == State.Alive)
                     {
-                        b.Think(dt, actualTurn, IterationCount, map, food);
+                        agent.Think(dt, actualTurn, IterationCount, map, food);
                     }
                 }
             }

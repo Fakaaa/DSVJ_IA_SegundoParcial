@@ -4,6 +4,7 @@ using UnityEngine;
 
 using InteligenciaArtificial.SegundoParcial.Utils;
 using InteligenciaArtificial.SegundoParcial.Utils.CameraHandler;
+using System.Linq;
 
 namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
 {
@@ -127,7 +128,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
         {
             List<Vector2Int> result = new List<Vector2Int>();
 
-            if (initialPopulationSize <= (maxGridX * 2)) //Por dos ya que al ser dos equipos cada uno puede ocupar 100 celdas de arriba para abajo.
+            if (initialPopulationSize <= (maxGridX * 3)) //Por dos ya que al ser dos equipos cada uno puede ocupar 100 celdas de arriba para abajo.
             {
                 for (int i = 0; i < initialPopulationSize; i++)
                 {
@@ -141,6 +142,8 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
 
                     result.Add(newPosition);
                 }
+
+                result = result.Distinct().ToList();
             }
             else
             {

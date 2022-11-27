@@ -1,18 +1,13 @@
 ﻿using UnityEngine;
-using System.Collections;
+
 using System.Collections.Generic;
 
 [System.Serializable]
 public class NeuralNetwork
 {
-    List<NeuronLayer> layers = new List<NeuronLayer>();
-    int totalWeightsCount = 0;
-    int inputsCount = 0;
-
-    public int InputsCount
-    {
-        get { return inputsCount; }
-    }
+    public List<NeuronLayer> layers = new List<NeuronLayer>();
+    public int totalWeightsCount = 0;
+    public int inputsCount = 0;
 
     public NeuralNetwork()
     {
