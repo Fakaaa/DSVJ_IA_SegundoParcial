@@ -258,6 +258,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 population.Add(genome);
 
                 AgentBase generatedAgent = CreateAgent(positions[i], genome, brain);
+                generatedAgent.Behaviour.onFoodDisput += OnFoodDisput;
                 teamAIs.Add(generatedAgent);
             }
 
@@ -266,6 +267,23 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             worstFitness = GetWorstFitness();
         }
 
+        private void OnFoodDisput(FoodObject food, Collider2D foodCollision,AgentBehaviour alliAgent,AgentBehaviour enemyAgent)
+        {
+            int allyLuck = alliAgent.CheckLuck();
+            int enemyLuck = enemyAgent.CheckLuck();
+
+            if (allyLuck > enemyLuck)
+            {
+                alliAgent.EatFood(food,foodCollision);
+                enemyAgent.AgentDie();
+            }
+            else
+            {
+                enemyAgent.EatFood(food,foodCollision);
+                alliAgent.AgentDie();
+            }
+        }
+        
         // Creates a new NeuralNetwork
         NeuralNetwork CreateBrain()
         {
@@ -388,7 +406,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                     // Think!! 
                     if(agent.state == State.Alive)
                     {
-                        agent.Think(dt, actualTurn, IterationCount, map, food);
+                        agent.Think(dt, actualTurn, IterationCount, map, food, teamId);
                     }
                 }
             }

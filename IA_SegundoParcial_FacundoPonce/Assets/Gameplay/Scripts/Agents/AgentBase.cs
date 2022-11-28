@@ -50,6 +50,10 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
         public Genome Genome { get { return genome; } }
         public NeuralNetwork Brain { get { return brain; } }
         public AgentData AgentData { get { return agentData; } }
+        public  AgentBehaviour Behaviour
+        {
+            get { return behaviour; }
+        }
         public int CurrentTurn { get { return currentTurn; } }
         public int FoodEaten { get { return foodEaten; } }
         public int CurrentIteration { get { return currentIteration; } }
@@ -89,7 +93,7 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
             }
         }
 
-        public void Think(float dt, int actualTurn, int iteration, MapHandler map, FoodHandler food)
+        public void Think(float dt, int actualTurn, int iteration, MapHandler map, FoodHandler food, string teamID)
         {
             if (state == State.Alive)
             {
@@ -98,7 +102,7 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
 
                 this.map = map;
 
-                behaviour.SetBehaviourNeeds(OnAteFood, food);
+                behaviour.SetBehaviourNeeds(OnAteFood,OnDead,food, teamID);
 
                 OnThink(dt, map, food);
             }
@@ -182,7 +186,13 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
 
         protected virtual void OnDead()
         {
+            state = State.Dead;
+            foodColected = 0;            
+            genome.fitness = 0.0f;
             generationsSurvived = 0;
+            gameObject.SetActive(false);
+
+            behaviour.foodDisput = false;
         }
 
         protected virtual void OnReset()
@@ -190,6 +200,8 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
             genome.fitness = 0.0f;
             foodColected = 0;
             behaviour.transform.position = initialAgentPosition;
+            
+            behaviour.foodDisput = false;
         }
         #endregion
 
