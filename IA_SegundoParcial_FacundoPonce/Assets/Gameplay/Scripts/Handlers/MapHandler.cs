@@ -123,6 +123,17 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map
                 }
             }
         }
+        public List<Vector2Int> GetAllMapPositions()
+        {
+            List<Vector2Int> listOfMapPositions = new List<Vector2Int>();
+
+            foreach (Cell cell in map.Values)
+            {
+                listOfMapPositions.Add(cell.Position);
+            }
+
+            return listOfMapPositions;
+        }
 
         public List<Vector2Int> GetRandomUniquePositions(int initialPopulationSize)
         {

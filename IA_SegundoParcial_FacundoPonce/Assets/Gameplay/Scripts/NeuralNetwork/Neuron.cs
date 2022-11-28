@@ -44,7 +44,10 @@ public class Neuron
     {
         for (int i = 0; i < weights.Length; i++)
         {
-            this.weights[i] = newWeights[i + fromId];
+            if(i + fromId < newWeights.Length)
+            {
+                this.weights[i] = newWeights[i + fromId];
+            }
         }
 
         return fromId + weights.Length;

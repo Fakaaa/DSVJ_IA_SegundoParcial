@@ -1,18 +1,14 @@
+using System.Linq;
 using System.Collections.Generic;
-
 using UnityEngine;
 using UnityEngine.UI;
-
 using InteligenciaArtificial.SegundoParcial.View;
 using InteligenciaArtificial.SegundoParcial.Agents;
 using InteligenciaArtificial.SegundoParcial.Handlers.Map;
 using InteligenciaArtificial.SegundoParcial.Handlers.Map.Food;
-
 using InteligenciaArtificial.SegundoParcial.Utils.CameraHandler;
 using InteligenciaArtificial.SegundoParcial.Utils.Files;
-
 using TMPro;
-using System.Linq;
 
 namespace InteligenciaArtificial.SegundoParcial.Handlers
 {
@@ -26,6 +22,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
     public class SimulationHandler : MonoBehaviour
     {
         #region EXPOSED_FIELDS
+
         [SerializeField] private List<AgentsTeam> teams = null;
         [SerializeField] private MapHandler map = null;
         [SerializeField] private FoodHandler food = null;
@@ -33,13 +30,16 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         [SerializeField] private Button pauseBtn = null;
         [SerializeField] private Button stopBtn = null;
 
-        [Header("SIMULATION SETTINGS")]
-        [SerializeField] private TMP_Text txtTurnAmount = null;
+        [Header("SIMULATION SETTINGS")] [SerializeField]
+        private TMP_Text txtTurnAmount = null;
+
         [SerializeField] private int maxTurnsAmount = 0;
         [SerializeField] private bool saveBestAgentOfEachTeam = false;
+
         #endregion
 
         #region PRIVATE_FIELDS
+
         private bool simulationStarted = false;
         private int teamsNeededForBegin = 0;
         private int currentTurn = 0;
@@ -50,9 +50,11 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         private int totalFoodPerCountOfAIs = 0;
 
         private List<(string, float)> lastAgentsSaved = new List<(string, float)>();
+
         #endregion
 
         #region UNITY_CALLS
+
         private void Start()
         {
             teamsNeededForBegin = teams.Count;
@@ -74,14 +76,16 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         {
             if (!simulationStarted) return;
 
-            if(!CheckIfAllTeamsAgentsThink())
+            if (!CheckIfAllTeamsAgentsThink())
             {
                 UpdateTeams();
             }
         }
+
         #endregion
 
         #region PUBLIC_METHODS
+
         public void Init()
         {
             simulationStarted = false;
@@ -100,12 +104,15 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 if (teams[i] != null)
                 {
                     teams[i].StartConfiguration.Init(map.MaxGridX, teams[i].PopulationManager);
+                    teams[i].PopulationManager.onAllAIsDead += OnPauseButtonClick;
                 }
             }
         }
+
         #endregion
 
         #region PRIVATE_METHODS
+
         private void InitializeSimulation()
         {
             if (simulationStarted) return;
@@ -242,19 +249,22 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                                 finalTeamPositions.Add(rightToLeftCells[j].Position);
                             }
                         }
-
                     }
 
                     teams[i].PopulationManager.StartSimulation(finalTeamPositions, map, food, LoadBestAgentFromTeam(i));
                 }
             }
 
-            food.Init(map.GetRandomUniquePositions(totalFoodPerCountOfAIs * 3));
+            //food.Init(map.GetAllMapPositions());
+            food.Init(map.GetRandomUniquePositions(totalFoodPerCountOfAIs));
             map.SetGeneratedFoodOnCells(food.FoodInMap);
         }
 
         private void OnEndedAllTurns()
         {
+            currentTurn = 0;
+            txtTurnAmount.text = "Turn: " + currentTurn.ToString();
+
             if (saveBestAgentOfEachTeam)
             {
                 SaveBestAgentOfEachTeam();
@@ -271,10 +281,8 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             food.DeInit();
             map.ClearFoodOnCells();
 
-            currentTurn = 0;
-            txtTurnAmount.text = "Turn: " + currentTurn.ToString();
-
-            food.Init(map.GetRandomUniquePositions(totalFoodPerCountOfAIs * 3));
+            //food.Init(map.GetAllMapPositions());
+            food.Init(map.GetRandomUniquePositions(totalFoodPerCountOfAIs));
             map.SetGeneratedFoodOnCells(food.FoodInMap);
         }
 
@@ -319,19 +327,19 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         }
 
         private void SaveBestAgentOfEachTeam()
-        {            
+        {
             for (int i = 0; i < teams.Count; i++)
             {
                 if (teams[i] != null)
                 {
                     bool needUpdateBestAgent = true;
                     AgentBase bestTeamAgent = teams[i].PopulationManager.GetBestAgent();
-
-                    if(lastAgentsSaved.Any())
+                    
+                    if (lastAgentsSaved.Any())
                     {
                         (string, float) correctSavedData = lastAgentsSaved.Find(data => data.Item1 == teams[i].PopulationManager.teamId);
 
-                        if(bestTeamAgent.AgentData.genome.fitness > correctSavedData.Item2)
+                        if (bestTeamAgent != null && bestTeamAgent.AgentData.genome.fitness > correctSavedData.Item2)
                         {
                             lastAgentsSaved.Remove(correctSavedData);
                             needUpdateBestAgent = true;
@@ -342,14 +350,21 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                         }
                     }
 
-                    if(needUpdateBestAgent)
+                    if (needUpdateBestAgent)
                     {
-                        if (!lastAgentsSaved.Contains((teams[i].PopulationManager.teamId, bestTeamAgent.AgentData.genome.fitness)))
+                        if (bestTeamAgent != null)
                         {
-                            lastAgentsSaved.Add((teams[i].PopulationManager.teamId, bestTeamAgent.AgentData.genome.fitness));
-                        }
+                            if (!lastAgentsSaved.Contains((teams[i].PopulationManager.teamId,
+                                    bestTeamAgent.AgentData.genome.fitness)))
+                            {
+                                lastAgentsSaved.Add((teams[i].PopulationManager.teamId,
+                                    bestTeamAgent.AgentData.genome.fitness));
+                            }
 
-                        FileHandler<AgentData>.Save(bestTeamAgent.AgentData,teams[i].PopulationManager.teamId,teams[i].PopulationManager.generation.ToString(),bestTeamAgent.Genome.fitness.ToString(), bestTeamAgent.Genome.foodEated.ToString());
+                            bestTeamAgent.AgentData.generation = teams[i].PopulationManager.generation;
+
+                            FileHandler<AgentData>.Save(bestTeamAgent.AgentData,teams[i].PopulationManager.teamId,teams[i].PopulationManager.generation.ToString(),bestTeamAgent.Genome.fitness.ToString(), bestTeamAgent.Genome.foodEated.ToString());
+                        }
                     }
                 }
             }
@@ -362,10 +377,12 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             if (string.IsNullOrEmpty(teams[iterationTeam].StartConfiguration.FileNameToLoad.text))
                 return null;
 
-            bestAgent = FileHandler<AgentData>.Load(teams[iterationTeam].PopulationManager.teamId, teams[iterationTeam].StartConfiguration.FileNameToLoad.text);
+            bestAgent = FileHandler<AgentData>.Load(teams[iterationTeam].PopulationManager.teamId,
+                teams[iterationTeam].StartConfiguration.FileNameToLoad.text);
 
             return bestAgent;
         }
+
         #endregion
     }
 }

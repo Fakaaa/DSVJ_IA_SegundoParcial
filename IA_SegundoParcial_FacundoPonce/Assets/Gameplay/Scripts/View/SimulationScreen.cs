@@ -14,6 +14,8 @@ namespace InteligenciaArtificial.SegundoParcial.View
         [SerializeField] private TMP_Text bestFitnessTxt;
         [SerializeField] private TMP_Text avgFitnessTxt;
         [SerializeField] private TMP_Text worstFitnessTxt;
+        [SerializeField] private TMP_Text actualPopulation;
+        [SerializeField] private TMP_Text maxPopulation;
         [SerializeField] private TMP_Text timerTxt;
         [SerializeField] private Slider timerSlider;        
         #endregion
@@ -45,6 +47,9 @@ namespace InteligenciaArtificial.SegundoParcial.View
             bestFitnessTxt.text = string.Format(bestFitnessText, 0);
             avgFitnessTxt.text = string.Format(avgFitnessText, 0);
             worstFitnessTxt.text = string.Format(worstFitnessText, 0);
+
+            actualPopulation.text = populationManager.PopulationCount.ToString();
+            maxPopulation.text = "/ " + populationManager.PopulationCount.ToString();
         }
 
         void LateUpdate()
@@ -56,6 +61,9 @@ namespace InteligenciaArtificial.SegundoParcial.View
                 bestFitnessTxt.text = string.Format(bestFitnessText, populationManager.bestFitness);
                 avgFitnessTxt.text = string.Format(avgFitnessText, populationManager.avgFitness);
                 worstFitnessTxt.text = string.Format(worstFitnessText, populationManager.worstFitness);
+
+                actualPopulation.text = populationManager.actualPopulation.ToString();
+                maxPopulation.text = "/ " + populationManager.PopulationCount.ToString();
             }
         }
         #endregion

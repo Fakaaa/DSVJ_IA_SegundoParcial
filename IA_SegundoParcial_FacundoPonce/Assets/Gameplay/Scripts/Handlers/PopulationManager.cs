@@ -6,6 +6,7 @@ using UnityEngine;
 using InteligenciaArtificial.SegundoParcial.Agents;
 using InteligenciaArtificial.SegundoParcial.Handlers.Map;
 using InteligenciaArtificial.SegundoParcial.Handlers.Map.Food;
+using System;
 
 namespace InteligenciaArtificial.SegundoParcial.Handlers
 {
@@ -57,6 +58,11 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             get; private set;
         }
 
+        public float actualPopulation
+        {
+            get; private set;
+        }
+
         public float avgFitness
         {
             get; private set;
@@ -66,6 +72,8 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
         {
             get; private set;
         }
+
+        public Action onAllAIsDead = null;
 
         private float GetBestFitness()
         {
@@ -115,7 +123,8 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 
             AgentBase agent = teamAIs[0];
             Genome bestGenome = population[0];
-            for (int i = 0; i < PopulationCount; i++)
+
+            for (int i = 0; i < population.Count; i++)
             {
                 if (teamAIs[i].state == State.Alive && population[i].fitness > bestGenome.fitness)
                 {
@@ -234,8 +243,8 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 
                 if (loadedAgentData != null)
                 {
-                    brain = loadedAgentData.brain;
-                    genome = loadedAgentData.genome;
+                    brain = CreateBrain(loadedAgentData.brain);
+                    genome = loadedAgentData.genome;                    
                 }
                 else
                 {
@@ -251,12 +260,16 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 AgentBase generatedAgent = CreateAgent(positions[i], genome, brain);
                 teamAIs.Add(generatedAgent);
             }
+
+            bestFitness = GetBestFitness();
+            avgFitness = GetAvgFitness();
+            worstFitness = GetWorstFitness();
         }
 
         // Creates a new NeuralNetwork
         NeuralNetwork CreateBrain()
         {
-            NeuralNetwork brain = new NeuralNetwork();
+            NeuralNetwork brain = new NeuralNetwork(NeuronsCountPerHL, OutputsCount);
 
             // Add first neuron layer that has as many neurons as inputs
             brain.AddFirstNeuronLayer(InputsCount, Bias, Sigmoid);
@@ -269,6 +282,32 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 
             // Add the output layer with as many neurons as outputs
             brain.AddNeuronLayer(OutputsCount, Bias, Sigmoid);
+
+            return brain;
+        }
+
+        NeuralNetwork CreateBrain(NeuralNetwork loadedBrain)
+        {
+            NeuralNetwork brain = new NeuralNetwork(loadedBrain.neuronCountsPerHL, loadedBrain.outputsCount);
+
+            if (loadedBrain.layers.Count < 1)
+                return null;
+
+            Bias = loadedBrain.layers[0].bias;
+            Sigmoid = loadedBrain.layers[0].p;
+            NeuronsCountPerHL = loadedBrain.neuronCountsPerHL;
+
+            // Add first neuron layer that has as many neurons as inputs
+            brain.AddFirstNeuronLayer(loadedBrain.inputsCount, Bias, Sigmoid);
+
+            for (int i = 0; i < loadedBrain.layers.Count; i++)
+            {
+                // Add each hidden layer with custom neurons count
+                brain.AddNeuronLayer(NeuronsCountPerHL, loadedBrain.layers[i].bias, loadedBrain.layers[i].p);
+            }
+
+            // Add the output layer with as many neurons as outputs
+            brain.AddNeuronLayer(loadedBrain.outputsCount, Bias, Sigmoid);
 
             return brain;
         }
@@ -303,30 +342,30 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             }
 
             // Evolve each genome and create a new array of genomes
-            List<Genome> newGenomes = genAlg.Epoch(genomesThatSurvived.ToArray()).ToList();
-            //Genome[] newGenomes = genAlg.Epoch(population.ToArray());
+            List<Genome> newGenomes = genAlg.Epoch(genomesThatSurvived.ToArray(), PopulationCount).ToList();
 
             // Clear current population
             population.Clear();
 
-            List<Genome> newGeneratedGenomes = new List<Genome>();
-            if(newGenomes.Count < PopulationCount)
+            // Add new population
+            for (int i = 0; i < newGenomes.Count; i++)
             {
-                int difference = PopulationCount - newGenomes.Count;
-
-                for (int i = 0; i < difference; i++)
+                if(i < PopulationCount)
                 {
-                    Genome genome = new Genome(brains[Random.Range(0, brains.Count-1)].GetTotalWeightsCount());
-                    newGeneratedGenomes.Add(genome);
+                    population.Add(newGenomes[i]);
                 }
             }
 
-            newGenomes.AddRange(newGeneratedGenomes);
-            // Add new population
-            population.AddRange(newGenomes);
+            if(population.Count < PopulationCount)
+            {
+                int difference = PopulationCount - population.Count;
+                DestroyUselessAgents(difference);
+            }
+
+            actualPopulation = population.Count;
 
             // Set the new genomes as each NeuralNetwork weights 
-            for (int i = 0; i < PopulationCount; i++)
+            for (int i = 0; i < population.Count; i++)
             {
                 NeuralNetwork brain = brains[i];
                 brain.SetWeights(newGenomes[i].genome);
@@ -374,6 +413,40 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
             teamAIs.Clear();
             population.Clear();
             brains.Clear();
+        }
+
+        void DestroyUselessAgents(int amount)
+        {
+            List<AgentBase> toDestroyAgents = new List<AgentBase>();
+
+            int originalAmountAIs = teamAIs.Count;
+
+            for (int i = 0; i < amount; i++)
+            {
+                if(amount < originalAmountAIs)
+                {
+                    toDestroyAgents.Add(teamAIs[i]);
+                }
+                else
+                {
+                    toDestroyAgents.AddRange(teamAIs);
+                }
+            }
+
+            for (int i = 0; i < toDestroyAgents.Count; i++)
+            {
+                if (toDestroyAgents[i] != null)
+                {
+                    teamAIs.Remove(toDestroyAgents[i]);
+                    Destroy(toDestroyAgents[i].gameObject);
+                }
+            }
+
+            if(teamAIs.Count < 1)
+            {
+                onAllAIsDead?.Invoke();
+                population.Clear();
+            }
         }
         #endregion
 

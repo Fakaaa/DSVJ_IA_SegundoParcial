@@ -8,9 +8,13 @@ public class NeuralNetwork
     public List<NeuronLayer> layers = new List<NeuronLayer>();
     public int totalWeightsCount = 0;
     public int inputsCount = 0;
+    public int outputsCount = 0;
+    public int neuronCountsPerHL = 0;
 
-    public NeuralNetwork()
+    public NeuralNetwork(int neuronsCount, int outputsCount)
     {
+        neuronCountsPerHL = neuronsCount;
+        this.outputsCount = outputsCount;
     }
 
     public bool AddNeuronLayer(int neuronsCount, float bias, float p)

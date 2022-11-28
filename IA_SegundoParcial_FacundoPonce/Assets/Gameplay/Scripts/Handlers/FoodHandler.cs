@@ -43,7 +43,6 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map.Food
         public List<Food> FoodInMap => foodInMap;
         #endregion
 
-
         #region PUBLIC_METHODS
         public void Init(List<Vector2Int> foodPositions)
         {
@@ -60,7 +59,7 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map.Food
 
                     foodInMap.Add(food);
 
-                    FoodObject foodGo = Instantiate(prefabFood, new Vector3(food.Position.x, food.Position.y, 2), Quaternion.identity);
+                    FoodObject foodGo = Instantiate(prefabFood, new Vector3(food.Position.x, food.Position.y, 0), Quaternion.identity);
                     foodGo.SetFoodData(food);
                     foodGo.name = "Food_" + foodPositions[i].x + "_" + foodPositions[i].y;
                     foodObjects.Add(foodGo);
@@ -85,23 +84,22 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers.Map.Food
             foodInMap = null;
         }
 
-        public void AteFood(Vector2Int agentPosition)
+        public void AteFood(Vector2Int foodPosition)
         {
             for (int i = 0; i < foodObjects.Count; i++)
             {
                 if (foodObjects[i] != null)
                 {
-                    if (agentPosition == new Vector2Int((int)foodObjects[i].transform.position.x, (int)foodObjects[i].transform.position.y))
+                    if (foodPosition == new Vector2Int((int)foodObjects[i].transform.position.x, (int)foodObjects[i].transform.position.y))
                     {
                         foodObjects[i].transform.localScale *= 3;
-                        Destroy(foodObjects[i].gameObject,1f);
                         foodObjects.Remove(foodObjects[i]);
                         break;
                     }
                 }
             }
 
-            Food toRemove = foodInMap.Find(food => food.Position == agentPosition);
+            Food toRemove = foodInMap.Find(food => food.Position == foodPosition);
             if (foodInMap.Contains(toRemove))
             {
                 foodInMap.Remove(toRemove);

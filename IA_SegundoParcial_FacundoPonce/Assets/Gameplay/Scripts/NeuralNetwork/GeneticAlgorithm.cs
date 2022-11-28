@@ -70,7 +70,7 @@ public class GeneticAlgorithm
     }
 
 
-    public Genome[] Epoch(Genome[] oldGenomes)
+    public Genome[] Epoch(Genome[] oldGenomes, int allPopulation)
     {
         totalFitness = 0;
 
@@ -102,7 +102,7 @@ public class GeneticAlgorithm
 
         if(genomesThatCanCrossover >= 2)
         {
-            while (newPopulation.Count < population.Count)
+            while (newPopulation.Count < allPopulation)
             {
                 Crossover();
             }

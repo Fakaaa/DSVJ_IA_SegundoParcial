@@ -11,6 +11,7 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
     {
         public Genome genome;
         public NeuralNetwork brain;
+        public int generation;
     }
 
     public enum State
@@ -25,6 +26,8 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
         private Vector3 initialAgentPosition = default;
         private Vector3 lastAgentPosition = default;
         private int foodColected = 0;
+
+        private MapHandler map = null;
         #endregion
 
         #region PROTECTED_METHODS
@@ -93,6 +96,10 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
                 currentTurn = actualTurn;
                 currentIteration = iteration;
 
+                this.map = map;
+
+                behaviour.SetBehaviourNeeds(OnAteFood, food);
+
                 OnThink(dt, map, food);
             }
         }
@@ -121,7 +128,6 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
             List<Cell> adjacentCellsToAgent = map.GetAdjacentsCellsToPosition(new Vector2Int((int)behaviour.transform.position.x, (int)behaviour.transform.position.y));
             List<float> inputs = new List<float>();
             float[] outputs;
-            Vector2Int agentPosition = new Vector2Int((int)behaviour.transform.position.x, (int)behaviour.transform.position.y);
 
             lastAgentPosition = behaviour.transform.position;
 
@@ -168,22 +174,6 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
                 }
             }
 
-            if (map != null)
-            {
-                if (map.Map.ContainsKey(agentPosition))
-                {
-                    if (map.Map[agentPosition].FoodInCell != null)
-                    {
-                        genome.fitness += 2;
-                        food.AteFood(agentPosition);
-                        foodColected++;
-                        genome.foodEated = foodColected;
-
-                        map.Map[agentPosition].SetFoodOnCell(null);
-                    }
-                }
-            }
-
             if (foodColected > 4) //Because is eating more food, his teamates cannot eat
             {
                 genome.fitness -= 1; 
@@ -204,6 +194,18 @@ namespace InteligenciaArtificial.SegundoParcial.Agents
         #endregion
 
         #region PRIVATE_METHODS
+        private void OnAteFood(Vector2Int foodPosition)
+        {
+            genome.fitness = genome.fitness > 0 ? genome.fitness * 2 : 100;
+            foodColected++;
+            genome.foodEated = foodColected;
+            
+            if(map.Map.ContainsKey(foodPosition))
+            {
+                map.Map[foodPosition].SetFoodOnCell(null);
+            }
+        }
+
         private float FindClosestFood(FoodHandler food)
         {
             if(food == null || food.FoodInMap == null || food.FoodInMap.Count < 1)
