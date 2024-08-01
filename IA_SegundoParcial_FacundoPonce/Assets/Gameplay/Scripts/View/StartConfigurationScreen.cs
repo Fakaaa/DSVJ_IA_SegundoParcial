@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using InteligenciaArtificial.SegundoParcial.Agents;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -118,6 +118,11 @@ namespace InteligenciaArtificial.SegundoParcial.View
             simulationScreen.gameObject.SetActive(false);
             teamSettingState.isOn = false;
         }
+        
+        public void SetAgentLoadedData(AgentData agentData)
+        {
+            simulationScreen.SetAgentLoadedData(agentData);
+        }
 
         public void ToggleOptions(bool state)
         {
@@ -191,7 +196,6 @@ namespace InteligenciaArtificial.SegundoParcial.View
 
             sigmoidSlopeTxt.text = string.Format(sigmoidSlopeText, populationManager.Sigmoid.ToString("0.00"));
         }
-
 
         private void OnStartButtonClick(bool bestAI)
         {

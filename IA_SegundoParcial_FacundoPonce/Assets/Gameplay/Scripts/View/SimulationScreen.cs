@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using InteligenciaArtificial.SegundoParcial.Agents;
+using UnityEngine;
 using UnityEngine.UI;
 
 using InteligenciaArtificial.SegundoParcial.Handlers;
@@ -17,7 +18,9 @@ namespace InteligenciaArtificial.SegundoParcial.View
         [SerializeField] private TMP_Text actualPopulation;
         [SerializeField] private TMP_Text maxPopulation;
         [SerializeField] private TMP_Text timerTxt;
-        [SerializeField] private Slider timerSlider;        
+        [SerializeField] private Slider timerSlider;
+        [SerializeField] private TMP_Text agentLoadedData;
+        [SerializeField] private GameObject agentLoadedGo;
         #endregion
 
         #region PRIVATE_FIELDS
@@ -28,6 +31,8 @@ namespace InteligenciaArtificial.SegundoParcial.View
         private string timerText;
         private int lastGeneration = 0;
 
+        private const string agentDataFormat = "Agent Loaded\nGen: {0}, Fitness: {1}, Food Ate: {2}";
+        
         private PopulationManager populationManager= null;
         #endregion
 
@@ -86,6 +91,23 @@ namespace InteligenciaArtificial.SegundoParcial.View
                 avgFitnessText = avgFitnessTxt.text;
             if (string.IsNullOrEmpty(worstFitnessText))
                 worstFitnessText = worstFitnessTxt.text;
+        }
+
+        public void SetAgentLoadedData(AgentData agentData)
+        {
+            if (agentData == null)
+            {
+                agentLoadedGo.SetActive(false);
+            }
+            else
+            {
+                if (!agentLoadedGo.activeInHierarchy)
+                {
+                    agentLoadedGo.SetActive(true);
+                }
+                
+                agentLoadedData.text = string.Format(agentDataFormat, agentData.generation, agentData.genome.fitness, agentData.genome.foodEated);
+            }
         }
         #endregion
 

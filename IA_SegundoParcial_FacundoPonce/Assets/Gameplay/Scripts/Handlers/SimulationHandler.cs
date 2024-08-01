@@ -1,13 +1,16 @@
 using System.Linq;
 using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
+
 using InteligenciaArtificial.SegundoParcial.View;
 using InteligenciaArtificial.SegundoParcial.Agents;
 using InteligenciaArtificial.SegundoParcial.Handlers.Map;
 using InteligenciaArtificial.SegundoParcial.Handlers.Map.Food;
 using InteligenciaArtificial.SegundoParcial.Utils.CameraHandler;
 using InteligenciaArtificial.SegundoParcial.Utils.Files;
+
 using TMPro;
 
 namespace InteligenciaArtificial.SegundoParcial.Handlers
@@ -255,7 +258,6 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 }
             }
 
-            //food.Init(map.GetAllMapPositions());
             food.Init(map.GetRandomUniquePositions(totalFoodPerCountOfAIs));
             map.SetGeneratedFoodOnCells(food.FoodInMap);
         }
@@ -378,8 +380,10 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
                 return null;
 
             bestAgent = FileHandler<AgentData>.Load(teams[iterationTeam].PopulationManager.teamId,
-                teams[iterationTeam].StartConfiguration.FileNameToLoad.text);
+                teams[iterationTeam].StartConfiguration.FileNameToLoad.text + ".txt");
 
+            teams[iterationTeam].StartConfiguration.SetAgentLoadedData(bestAgent);
+            
             return bestAgent;
         }
 

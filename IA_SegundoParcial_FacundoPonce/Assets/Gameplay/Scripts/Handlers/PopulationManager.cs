@@ -126,10 +126,13 @@ namespace InteligenciaArtificial.SegundoParcial.Handlers
 
             for (int i = 0; i < population.Count; i++)
             {
-                if (teamAIs[i].state == State.Alive && population[i].fitness > bestGenome.fitness)
+                if (i < teamAIs.Count)
                 {
-                    bestGenome = population[i];
-                    agent = teamAIs[i];
+                    if (teamAIs[i].state == State.Alive && population[i].fitness > bestGenome.fitness)
+                    {
+                        bestGenome = population[i];
+                        agent = teamAIs[i];
+                    }
                 }
             }
 
